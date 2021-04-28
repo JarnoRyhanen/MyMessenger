@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">My Messenger</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+
+    <string name="date">date</string>
+    <string name="seppo">Seppo</string>
+</resources>
