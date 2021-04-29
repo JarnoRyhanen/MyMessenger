@@ -20,6 +20,12 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/Theme.MyMessenger.NoActionBar"
+            />
+
+        <activity android:name=".PrivateMessageScreen" />
+        <activity
+            android:name=".SignInActivity"
+            android:theme="@style/SplashScreenTheme"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,7 +33,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PrivateMessageScreen" />
     </application>
 
 </manifest>

@@ -3,6 +3,8 @@ package com.home.mymessenger.app;
 import android.app.Application;
 import android.util.Log;
 
+import com.home.mymessenger.dp.RealmHelper;
+
 public class MessengerApp extends Application {
 
     private final static String TAG = "MessengerApp";
@@ -12,6 +14,6 @@ public class MessengerApp extends Application {
         super.onCreate();
         Log.d(TAG, "onCreate: app started");
 
-
+        RealmHelper.init(this);
     }
 }

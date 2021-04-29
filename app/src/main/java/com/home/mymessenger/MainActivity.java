@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.home.mymessenger.dp.RealmHelper;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -14,6 +15,9 @@ import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,11 +46,19 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        updateContent();
     }
 
     private void updateContent() {
+        adapter.clear();
+        Realm realm = RealmHelper.getInstance().getRealm();
 
+        RealmResults<UserMainScreenMessageData> data = realm.where(UserMainScreenMessageData.class).findAll();
 
+        for (UserMainScreenMessageData data1 : data) {
+            adapter.add(data1);
+        }
+        adapter.notifyDataSetChanged();
     }
 
     @Override
