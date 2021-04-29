@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.main_activity_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -42,7 +43,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    
+
+    private void updateContent() {
+
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
