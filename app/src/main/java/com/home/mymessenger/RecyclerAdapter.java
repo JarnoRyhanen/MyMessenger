@@ -5,13 +5,13 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.imageview.ShapeableImageView;
+import com.home.mymessenger.data.ChatData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
 
     private final static String TAG = "RecyclerAdapter";
     private final Context context;
-    private List<UserMainScreenMessageData> list = new ArrayList<>();
+    private List<ChatData> list = new ArrayList<>();
 
     public RecyclerAdapter(Context context) {
         this.context = context;
@@ -35,7 +35,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
     @Override
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
 
-        UserMainScreenMessageData data = list.get(position);
+        ChatData data = list.get(position);
 
         holder.chatID = data.getChatID();
         holder.userName.setText(data.getUserName());
@@ -44,7 +44,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
 
     }
 
-    public void add(UserMainScreenMessageData data) {
+    public void add(ChatData data) {
         list.add(data);
     }
 

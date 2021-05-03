@@ -3,6 +3,7 @@ package com.home.mymessenger;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -15,14 +16,21 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SignInActivity extends Activity {
 
     private static final int RC_SIGN_IN = 123;
     private static final String TAG = "SignInActivity";
+
+    private final FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private final DatabaseReference ref = database.getReference();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,6 +67,13 @@ public class SignInActivity extends Activity {
             if (resultCode == RESULT_OK) {
 
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                DatabaseReference databaseReference = ref.child("users");
+
+                Map<String, Object> userMap = new HashMap<>();
+                userMap.put(user.getUid(), user.getDisplayName());
+                databaseReference.updateChildren(userMap);
+
                 startMainActivity();
 
             } else {

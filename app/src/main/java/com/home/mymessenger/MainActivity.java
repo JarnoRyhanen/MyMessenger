@@ -4,6 +4,8 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.home.mymessenger.data.ChatData;
+import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -46,16 +48,23 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        startFireBaseListening();
         updateContent();
+    }
+    private void startFireBaseListening() {
+        FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
+        helper.setListener(this::updateContent);
+        helper.listerForUserChatChange();
+        helper.listenForChatDataChange("chat1");
     }
 
     private void updateContent() {
         adapter.clear();
         Realm realm = RealmHelper.getInstance().getRealm();
 
-        RealmResults<UserMainScreenMessageData> data = realm.where(UserMainScreenMessageData.class).findAll();
+        RealmResults<ChatData> data = realm.where(ChatData.class).findAll();
 
-        for (UserMainScreenMessageData data1 : data) {
+        for (ChatData data1 : data) {
             adapter.add(data1);
         }
         adapter.notifyDataSetChanged();
