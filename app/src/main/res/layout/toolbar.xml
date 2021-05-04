@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.Toolbar
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimary"
+    android:elevation="4dp"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+    >
+
+    <com.google.android.material.imageview.ShapeableImageView
+
+        android:id="@+id/toolbar_shapeable_image_view"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:shapeAppearanceOverlay="@style/roundedImageView"
+        tools:src="@drawable/common_full_open_on_phone"
+        />
+
+    <TextView
+        android:id="@+id/user_name_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:textAppearance="?android:attr/textAppearanceLargePopupMenu"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        tools:text="userName"
+        />
+
+
+</androidx.appcompat.widget.Toolbar>
