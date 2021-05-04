@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.View;
 
 import android.view.Menu;
@@ -23,8 +24,10 @@ import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
+    private static final String TAG = "MainActivity";
+
     private RecyclerAdapter adapter;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
         adapter = new RecyclerAdapter(this);
         recyclerView.setAdapter(adapter);
 
-        setContentView(R.layout.activity_main);
+        Log.d(TAG, "onCreate: " + adapter);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -49,13 +53,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         startFireBaseListening();
-        updateContent();
     }
+
     private void startFireBaseListening() {
         FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
         helper.setListener(this::updateContent);
         helper.listerForUserChatChange();
-        helper.listenForChatDataChange("chat1");
+//        helper.listenForChatDataChange("chat1");
     }
 
     private void updateContent() {

@@ -2,6 +2,7 @@ package com.home.mymessenger;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +21,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
 
     private final static String TAG = "RecyclerAdapter";
     private final Context context;
-    private List<ChatData> list = new ArrayList<>();
+    private final List<ChatData> list = new ArrayList<>();
 
     public RecyclerAdapter(Context context) {
         this.context = context;
@@ -36,7 +37,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
 
         ChatData data = list.get(position);
-
         holder.chatID = data.getChatID();
         holder.userName.setText(data.getUserName());
         holder.date.setText(data.getLatestActive());

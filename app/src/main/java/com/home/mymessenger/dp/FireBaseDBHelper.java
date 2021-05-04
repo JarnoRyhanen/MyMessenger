@@ -79,13 +79,11 @@ public class FireBaseDBHelper {
 
                     Object chatObject = userChatMap.get(key);
                     final Map<String, Object> chatObjectMap = (Map<String, Object>) chatObject;
-
-                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("chat_name"));
-                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("date"));
-                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("latest_message"));
-                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("user_name"));
-                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("user_profile_pic"));
-
+//                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("chat_name"));
+//                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("date"));
+//                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("latest_message"));
+//                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("user_name"));
+//                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("user_profile_pic"));
                     ChatData chatData = new ChatData();
                     chatData.setChatID(key);
                     chatData.setChatName((String) chatObjectMap.get("chat_name"));
