@@ -62,12 +62,46 @@ public class FireBaseDBHelper {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Log.w(TAG, "onCancelled: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+
                 }
             });
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private void updateUserChats(Object userChat) {
+        if (userChat instanceof Map) {
+            final Map<String, Object> userChatMap = (Map<String, Object>) userChat;
+
+            realm.executeTransaction(realm1 -> {
+                for (String key : userChatMap.keySet()) {
+                    Log.d(TAG, "updateUserChats: key: " + key);
+
+                    Object chatObject = userChatMap.get(key);
+                    final Map<String, Object> chatObjectMap = (Map<String, Object>) chatObject;
+
+                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("chat_name"));
+                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("date"));
+                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("latest_message"));
+                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("user_name"));
+                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("user_profile_pic"));
+
+                    ChatData chatData = new ChatData();
+                    chatData.setChatID(key);
+                    chatData.setChatName((String) chatObjectMap.get("chat_name"));
+                    chatData.setLatestActive((String) chatObjectMap.get("date"));
+                    chatData.setLatestMessage((String) chatObjectMap.get("latest_message"));
+                    chatData.setProfilePicture((String) chatObjectMap.get("user_profile_pic"));
+                    chatData.setUserName((String) chatObjectMap.get("user_name"));
+                    realm.copyToRealmOrUpdate(chatData);
+                }
+            });
+        }
+
+        if (listener != null) {
+            listener.onDatabaseUpdate();
+        }
+    }
 
     public void listenForChatDataChange(String chatID) {
 
@@ -78,7 +112,7 @@ public class FireBaseDBHelper {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                 final Object changedData = snapshot.getValue();
-                loadChatContent(changedData, chatID);
+                loadChatContent(changedData);
                 Log.d(TAG, "onDataChange: " + changedData);
             }
 
@@ -90,37 +124,11 @@ public class FireBaseDBHelper {
 
     }
 
-    private void updateUserChats(Object userChat) {
-        if (userChat instanceof Map) {
-            final Map<String, Object> userChatMap = (Map<String, Object>) userChat;
-
-            realm.executeTransaction(realm1 -> {
-                for (String key : userChatMap.keySet()) {
-
-                    Object chatName = userChatMap.get(key);
-
-                    ChatData chatData = new ChatData();
-                    chatData.setChatID(key);
-                    chatData.setChatName((String) chatName);
-                    realm.copyToRealmOrUpdate(chatData);
-                }
-            });
-        }
-
-        if (listener != null) {
-            listener.onDatabaseUpdate();
-        }
-    }
-
     @SuppressWarnings("unchecked")
-    private void loadChatContent(Object chat, String chatID) {
-
+    private void loadChatContent(Object chat) {
         if (chat instanceof Map) {
             final Map<String, Object> chatContentMap = (Map<String, Object>) chat;
             realm.executeTransaction(realm1 -> {
-
-
-
 
                 Object messagesObject = chatContentMap.get("messages");
                 final Map<String, Object> messagesMap = (Map<String, Object>) messagesObject;
@@ -133,7 +141,7 @@ public class FireBaseDBHelper {
 //                            Log.d(TAG, "loadChatContent: messageid " + messageID);
 //                            Log.d(TAG, "loadChatContent: sender " + messageMap.get("sender"));
 //                            Log.d(TAG, "loadChatContent: date " + messageMap.get("date"));
-//                            Log.d(TAG, "loadChatContent: " + messageID);
+//                            Log.d(TAG, "loadChatContent: " + messageID)
                             MessageData messageData = new MessageData();
                             messageData.setMessageID(messageID);
                             messageData.setMessageContent((String) messageMap.get("message_content"));
