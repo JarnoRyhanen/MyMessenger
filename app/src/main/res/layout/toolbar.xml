@@ -30,5 +30,5 @@
         android:textSize="20sp"
         tools:text="userName"
         />
-    
+
 </androidx.appcompat.widget.Toolbar>

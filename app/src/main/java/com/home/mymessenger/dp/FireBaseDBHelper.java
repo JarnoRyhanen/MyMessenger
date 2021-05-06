@@ -1,5 +1,6 @@
 package com.home.mymessenger.dp;
 
+import android.media.JetPlayer;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -13,6 +14,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.home.mymessenger.data.ChatData;
 import com.home.mymessenger.data.MessageData;
+import com.home.mymessenger.data.UserData;
 
 import java.util.Map;
 
@@ -46,6 +48,54 @@ public class FireBaseDBHelper {
         return instance;
     }
 
+    public void listenForUserChange() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+
+            String currentUserID = currentUser.getUid();
+            DatabaseReference databaseReference = database.getReference("users").child(currentUserID);
+
+            databaseReference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    final Object changedData = snapshot.getValue();
+                    updateUser(changedData);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+    }
+
+    private void updateUser(Object changedData) {
+        if (changedData instanceof Map) {
+
+            final Map<String, Object> userMap = (Map<String, Object>) changedData;
+            realm.executeTransaction(realm1 -> {
+
+                for (String key : userMap.keySet()) {
+                    Log.d(TAG, "updateUser: " + key);
+//                    Object userMapObject = userMap.get(key);
+//                    final Map<String, Object> userMapObjectMap = (Map<String, Object>) userMapObject;
+//
+                    UserData userData = new UserData();
+//
+                    userData.setUserName((String) userMap.get("user_name"));
+                    userData.setUserProfilePicture((String) userMap.get("profile_picture"));
+                    userData.setUserStatus((String) userMap.get("current_status"));
+                    realm.copyToRealmOrUpdate(userData);
+                }
+            });
+        }
+        if (listener != null) {
+            listener.onDatabaseUpdate();
+        }
+    }
+
+
     public void listerForUserChatChange() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -57,7 +107,7 @@ public class FireBaseDBHelper {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     final Object changedData = snapshot.getValue();
                     updateUserChats(changedData);
-                    Log.d(TAG, "onDataChange: " + changedData);
+                    Log.d(TAG, "onDataChange " + changedData);
                 }
 
                 @Override

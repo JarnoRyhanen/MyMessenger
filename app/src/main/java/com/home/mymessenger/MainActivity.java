@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         helper.setListener(this::updateContent);
         helper.listerForUserChatChange();
 //        helper.listenForChatDataChange("chat1");
+        helper.listenForUserChange();
     }
 
     private void updateContent() {

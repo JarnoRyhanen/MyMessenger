@@ -71,7 +71,13 @@ public class SignInActivity extends Activity {
                 DatabaseReference databaseReference = ref.child("users");
 
                 Map<String, Object> userMap = new HashMap<>();
-                userMap.put(user.getUid(), user.getDisplayName());
+
+                Map<String, Object> userObjectMap = new HashMap<>();
+                userObjectMap.put("user_name", user.getDisplayName());
+                userObjectMap.put("current_status", "placeholder status");
+                userObjectMap.put("profile_picture", "placeholder profile picture");
+
+                userMap.put(user.getUid(), userObjectMap);
                 databaseReference.updateChildren(userMap);
 
                 startMainActivity();
