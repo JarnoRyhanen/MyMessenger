@@ -87,7 +87,7 @@ public class FireBaseDBHelper {
                     ChatData chatData = new ChatData();
                     chatData.setChatID(key);
                     chatData.setChatName((String) chatObjectMap.get("chat_name"));
-                    chatData.setLatestActive((String) chatObjectMap.get("date"));
+                    chatData.setLatestActive((String) chatObjectMap.get("latest_message_date"));
                     chatData.setLatestMessage((String) chatObjectMap.get("latest_message"));
                     chatData.setProfilePicture((String) chatObjectMap.get("user_profile_pic"));
                     chatData.setUserName((String) chatObjectMap.get("user_name"));
