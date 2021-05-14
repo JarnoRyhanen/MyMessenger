@@ -59,7 +59,7 @@ public class FireBaseDBHelper {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     final Object changedData = snapshot.getValue();
-                    updateUser(changedData);
+                    updateUser(changedData, currentUserID);
                 }
 
                 @Override
@@ -70,19 +70,19 @@ public class FireBaseDBHelper {
         }
     }
 
-    private void updateUser(Object changedData) {
+    private void updateUser(Object changedData, String currentUserID) {
         if (changedData instanceof Map) {
 
             final Map<String, Object> userMap = (Map<String, Object>) changedData;
             realm.executeTransaction(realm1 -> {
 
                 for (String key : userMap.keySet()) {
-                    Log.d(TAG, "updateUser: " + key);
+                    Log.d(TAG, "updateUser: " + userMap.get(key));
 //                    Object userMapObject = userMap.get(key);
 //                    final Map<String, Object> userMapObjectMap = (Map<String, Object>) userMapObject;
 //
                     UserData userData = new UserData();
-//
+                    userData.setUserID(currentUserID);
                     userData.setUserName((String) userMap.get("user_name"));
                     userData.setUserProfilePicture((String) userMap.get("profile_picture"));
                     userData.setUserStatus((String) userMap.get("current_status"));

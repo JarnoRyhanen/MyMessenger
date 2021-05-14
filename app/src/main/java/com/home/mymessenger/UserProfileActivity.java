@@ -55,8 +55,6 @@ public class UserProfileActivity extends AppCompatActivity {
     private final static String TAG = "UserProfileActivity";
     private static final int PICK_IMAGE = 100;
 
-    private RelativeLayout parentLayout;
-
     private ShapeableImageView profilePicture;
     private TextInputLayout userNameText;
     private TextInputLayout statusText;
@@ -67,11 +65,11 @@ public class UserProfileActivity extends AppCompatActivity {
     private final FirebaseDatabase database = FirebaseDatabase.getInstance();
     private final DatabaseReference ref = database.getReference();
 
-    private FirebaseStorage storage = FirebaseStorage.getInstance();
-    private StorageReference storageReference = storage.getReference();
+    private final FirebaseStorage storage = FirebaseStorage.getInstance();
+    private final StorageReference storageReference = storage.getReference();
 
-    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-    private Realm realm = RealmHelper.getInstance().getRealm();
+    private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private final Realm realm = RealmHelper.getInstance().getRealm();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,8 +85,10 @@ public class UserProfileActivity extends AppCompatActivity {
 
         userNameText.getEditText().setText(user.getDisplayName());
 
-        UserData userData = realm.where(UserData.class).equalTo("userName", user.getDisplayName()).findFirst();
-        statusText.getEditText().setText(userData.getUserStatus());
+        UserData userData = realm.where(UserData.class).equalTo("userID", user.getUid()).findFirst();
+        if(userData != null){
+            statusText.getEditText().setText(userData.getUserStatus());
+        }
 
         loadImage();
     }
@@ -158,7 +158,7 @@ public class UserProfileActivity extends AppCompatActivity {
             Log.d(TAG, "onSuccess: " + uri);
             updateProfilePicture(uri);
             Toast.makeText(UserProfileActivity.this, "Profile picture changed successfully", Toast.LENGTH_SHORT).show();
-        }).addOnFailureListener(e -> e.printStackTrace());
+        }).addOnFailureListener(Throwable::printStackTrace);
     }
 
     private void updateProfilePicture(Uri uri) {
@@ -172,8 +172,6 @@ public class UserProfileActivity extends AppCompatActivity {
     public void onClick(View view) {
         if (view == floatingActionButton) {
             openImageGallery();
-        } else {
-            Log.d(TAG, "onClick: " + userNameText.getEditText().getText() + " " + statusText.getEditText().getText());
         }
     }
 }
