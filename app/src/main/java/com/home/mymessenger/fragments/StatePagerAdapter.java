@@ -1,17 +1,14 @@
-package com.home.mymessenger;
-
-import android.widget.ListPopupWindow;
+package com.home.mymessenger.fragments;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class StatePagerAdapter extends FragmentStatePagerAdapter {
+public class  StatePagerAdapter extends FragmentStatePagerAdapter {
 
     private final List<Fragment> fragmentList = new ArrayList<>();
 

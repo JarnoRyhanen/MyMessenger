@@ -1,8 +1,6 @@
 package com.home.mymessenger;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -11,7 +9,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,9 +35,7 @@ public class SignInActivity extends AppCompatActivity {
     private final FirebaseDatabase database = FirebaseDatabase.getInstance();
     private final DatabaseReference ref = database.getReference();
 
-    private Realm realm = RealmHelper.getInstance().getRealm();
-
-    private StatePagerAdapter statePagerAdapter;
+    private final Realm realm = RealmHelper.getInstance().getRealm();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,29 +73,30 @@ public class SignInActivity extends AppCompatActivity {
 
             FireBaseDBHelper.getInstance().listerForUserChatChange();
 
-//            IdpResponse idpResponse = IdpResponse.fromResultIntent(data);
-
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             String userID = user.getUid();
             String userName = user.getDisplayName();
-            Uri userPic = user.getPhotoUrl();
+
+            UserData userData = realm.where(UserData.class).equalTo("userID", userID).findFirst();
 
             Log.d(TAG, "onActivityResult:  user id: " + userID + " , username: " + userName);
 
-//            DatabaseReference databaseReference = ref.child("users");
 
-//            UserData userData = realm.where(UserData.class).equalTo("userID", user.getUid()).findFirst();
-//
-//            Map<String, Object> userMap = new HashMap<>();
-//            Map<String, Object> userObjectMap = new HashMap<>();
-//            userObjectMap.put("user_name", userName);
-////                userObjectMap.put("current_status", userData.getUserStatus());
-////                userObjectMap.put("profile_picture", userData.getUserProfilePicture());
-//            userMap.put(userID, userObjectMap);
-//            databaseReference.updateChildren(userMap);
+            DatabaseReference databaseReference = ref.child("users");
 
+            Map<String, Object> userMap = new HashMap<>();
+            Map<String, Object> userObjectMap = new HashMap<>();
+            userObjectMap.put("user_name", userName);
+            try {
+                userObjectMap.put("current_status", userData.getUserStatus());
+                userObjectMap.put("profile_picture", userData.getUserProfilePicture());
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+            userMap.put(userID, userObjectMap);
+            databaseReference.updateChildren(userMap);
 
-//            startMainActivity();
+            startMainActivity();
 
         } else {
             Log.d(TAG, "onActivityResult: sign in cancelled");
