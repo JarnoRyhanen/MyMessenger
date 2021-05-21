@@ -1,7 +1,7 @@
 package com.home.mymessenger.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +9,7 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -19,6 +20,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.home.mymessenger.R;
 import com.home.mymessenger.data.UserData;
+import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
 
 import java.util.HashMap;
@@ -37,6 +39,16 @@ public class ChangeStatusFragment extends Fragment {
 
     private TextInputEditText statusEditText;
     private Button saveButton;
+
+    public void setListener(ChangeStatusFragmentListener listener) {
+        this.listener = listener;
+    }
+
+    private ChangeStatusFragmentListener listener;
+
+    public interface ChangeStatusFragmentListener {
+        void onStatusChanged(CharSequence status);
+    }
 
     @Nullable
     @Override
@@ -60,27 +72,35 @@ public class ChangeStatusFragment extends Fragment {
                 statusEditText.setText(status);
             }
         }
-
         return view;
     }
 
-    private void saveStatus(){
+    private void saveStatus() {
+        CharSequence newStatus = statusEditText.getText();
+
         DatabaseReference statusRef = ref.child("users").child(user.getUid());
         Map<String, Object> statusMap = new HashMap<>();
-        statusMap.put("current_status", statusEditText.getText().toString());
+        statusMap.put("current_status", newStatus.toString());
         statusRef.updateChildren(statusMap);
 
-        returnToPreviousFragment();
+        getParentFragmentManager().popBackStack();
+        listener.onStatusChanged(newStatus);
     }
 
-    private void returnToPreviousFragment() {
-        Log.d(TAG, "goBack: ");
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right);
-        transaction.replace(R.id.user_profile_activity_container, UserProfileFragment.class, null);
-        transaction.addToBackStack(null);
-        transaction.setReorderingAllowed(true);
-        transaction.commit();
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof ChangeStatusFragmentListener) {
+            listener = (ChangeStatusFragmentListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement ChangeStatusFragmentListener");
+        }
     }
 
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        listener = null;
+    }
 }

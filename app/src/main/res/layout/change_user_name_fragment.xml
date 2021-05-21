@@ -31,4 +31,12 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <Button
+        android:id="@+id/change_user_name_fragment_save_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="save changes"
+        android:layout_centerInParent="true"
+        />
+
 </RelativeLayout>

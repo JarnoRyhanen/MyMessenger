@@ -1,6 +1,5 @@
 package com.home.mymessenger.fragments;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -10,10 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -25,11 +22,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.home.mymessenger.R;
@@ -45,7 +39,7 @@ import io.realm.Realm;
 
 import static android.app.Activity.RESULT_OK;
 
-public class UserProfileFragment extends Fragment {
+public class UserProfileFragment extends Fragment{
 
     private final static String TAG = "UserProfileActivity";
     private static final int PICK_IMAGE = 100;
@@ -75,7 +69,7 @@ public class UserProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.user_profile_fragment, container, false);
 
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+//        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         profilePicture = view.findViewById(R.id.user_profile_fragment_profile_picture);
         userNameLayout = view.findViewById(R.id.user_profile_fragment_user_name_layout);
@@ -84,27 +78,36 @@ public class UserProfileFragment extends Fragment {
         statusEditText = view.findViewById(R.id.user_profile_fragment_status_edit_text);
         floatingActionButton = view.findViewById(R.id.user_profile_activity_fab);
 
-        updateUserStatus();
         setOnClickListeners();
 
-        loadImage();
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        updateUserStatus();
-        Log.d(TAG, "onResume: ");
+        loadUserStatusAndUserName();
+        loadImage();
     }
 
-    private void updateUserStatus() {
+    private void loadUserStatusAndUserName() {
+        Log.d(TAG, "updateUserStatus: e");
         if (user != null) {
             userNameEditText.setText(user.getDisplayName());
             userData = realm.where(UserData.class).equalTo("userID", user.getUid()).findFirst();
             if (userData != null) {
-                statusEditText.setText(userData.getUserStatus());
+                String status = userData.getUserStatus();
+                Log.d(TAG, "updateUserStatus new status is: " + status);
+                statusEditText.setText(status);
             }
+        }
+    }
+
+    public void updateStatus(CharSequence newStatus) {
+        try {
+            statusEditText.setText(newStatus);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
     }
 
@@ -118,7 +121,7 @@ public class UserProfileFragment extends Fragment {
 //        DatabaseReference getImage = ref.child("users").child(user.getUid()).child("profile_picture");
 
 //        userData.getUserProfilePicture();
-     Picasso.get().load(userData.getUserProfilePicture()).into(profilePicture);
+        Picasso.get().load(userData.getUserProfilePicture()).into(profilePicture);
 //        getImage.addListenerForSingleValueEvent(new ValueEventListener() {
 //            @Override
 //            public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -218,4 +221,5 @@ public class UserProfileFragment extends Fragment {
         transaction.setReorderingAllowed(true);
         transaction.commit();
     }
+
 }

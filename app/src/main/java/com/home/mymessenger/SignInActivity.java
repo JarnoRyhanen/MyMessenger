@@ -82,9 +82,8 @@ public class SignInActivity extends AppCompatActivity {
             Log.d(TAG, "onActivityResult:  user id: " + userID + " , username: " + userName);
 
 
-            DatabaseReference databaseReference = ref.child("users");
+            DatabaseReference databaseReference = ref.child("users").child(userID);
 
-            Map<String, Object> userMap = new HashMap<>();
             Map<String, Object> userObjectMap = new HashMap<>();
             userObjectMap.put("user_name", userName);
             try {
@@ -93,8 +92,7 @@ public class SignInActivity extends AppCompatActivity {
             } catch (NullPointerException e) {
                 e.printStackTrace();
             }
-            userMap.put(userID, userObjectMap);
-            databaseReference.updateChildren(userMap);
+            databaseReference.updateChildren(userObjectMap);
 
             startMainActivity();
 
