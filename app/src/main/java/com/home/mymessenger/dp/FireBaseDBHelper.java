@@ -43,7 +43,7 @@ public class FireBaseDBHelper {
 
     public static FireBaseDBHelper getInstance() {
         if (instance == null) {
-            throw new IllegalStateException(TAG + " is already initalized");
+            throw new IllegalStateException(TAG + " is already initialized");
         }
         return instance;
     }

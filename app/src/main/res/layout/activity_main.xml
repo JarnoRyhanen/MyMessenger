@@ -5,13 +5,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    tools:context=".mainactivity.MainActivity"
     >
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivity"
+        tools:context=".mainactivity.MainActivity"
         >
 
         <com.google.android.material.appbar.AppBarLayout
@@ -36,6 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
+            android:onClick="onClick"
             app:srcCompat="@android:drawable/ic_dialog_email"
             />
 
@@ -46,6 +47,24 @@
             android:layout_marginTop="?attr/actionBarSize"
             />
 
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
+<!--    <Button-->
+<!--        android:id="@+id/soita"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_centerInParent="true"-->
+<!--        android:onClick="onClick"-->
+<!--        android:text="soita"-->
+<!--        />-->
+
+<!--    <EditText-->
+<!--        android:id="@+id/numero"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@id/soita"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:hint="number"-->
+<!--        />-->
 </RelativeLayout>

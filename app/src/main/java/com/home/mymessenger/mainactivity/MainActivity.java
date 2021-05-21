@@ -1,14 +1,18 @@
-package com.home.mymessenger;
+package com.home.mymessenger.mainactivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.home.mymessenger.R;
+import com.home.mymessenger.UserProfileActivity;
+import com.home.mymessenger.contacts.SearchForContactsActivity;
 import com.home.mymessenger.data.ChatData;
 import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,16 +23,22 @@ import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity {
-
+    private static final int REQUEST_CALL = 1;
     private static final String TAG = "MainActivity";
 
     private RecyclerAdapter adapter;
     private RecyclerView recyclerView;
+    private FloatingActionButton floatingActionButton;
+
+    private Button button;
+    private EditText editText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,19 +50,15 @@ public class MainActivity extends AppCompatActivity {
         adapter = new RecyclerAdapter(this);
         recyclerView.setAdapter(adapter);
 
+//        button = findViewById(R.id.soita);
+//        editText = findViewById(R.id.numero);
+
         Log.d(TAG, "onCreate: " + adapter);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        floatingActionButton = findViewById(R.id.fab);
         startFireBaseListening();
     }
 
@@ -76,10 +82,6 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -104,5 +106,45 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onClick(View view) {
+        if (view == floatingActionButton) {
+            Intent intent = new Intent(this, SearchForContactsActivity.class);
+            startActivity(intent);
+//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show();
+        } else if (view == button) {
+//            callPhone();
+            Log.d(TAG, "onClick: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2");
+        }
+    }
+
+//    private void callPhone() {
+//        String number = editText.getText().toString();
+//        if (number.trim().length() > 0) {
+//            if (ContextCompat.checkSelfPermission(MainActivity.this,
+//                    Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+//                ActivityCompat.requestPermissions(MainActivity.this,
+//                        new String[]{Manifest.permission.CALL_PHONE}, REQUEST_CALL);
+//            } else {
+//                String dial = "tel:" + number;
+//                startActivity(new Intent(Intent.ACTION_CALL, Uri.parse(dial)));
+//            }
+//        } else {
+//            Toast.makeText(MainActivity.this, "Enter Phone Number", Toast.LENGTH_SHORT).show();
+//        }
+//    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode == REQUEST_CALL) {
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                callPhone();
+//            } else {
+//                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
+//            }
+//        }
     }
 }
