@@ -5,6 +5,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -53,7 +55,7 @@ public class FireBaseDBHelper {
         if (currentUser != null) {
 
             String currentUserID = currentUser.getUid();
-            DatabaseReference databaseReference = database.getReference("users").child(currentUserID);
+            DatabaseReference databaseReference = database.getReference("user_specific_info").child(currentUserID);
 
             databaseReference.addValueEventListener(new ValueEventListener() {
                 @Override
@@ -75,26 +77,55 @@ public class FireBaseDBHelper {
 
             final Map<String, Object> userMap = (Map<String, Object>) changedData;
             realm.executeTransaction(realm1 -> {
-
-                for (String key : userMap.keySet()) {
-                    Log.d(TAG, "updateUser: " + userMap.get(key));
-//                    Object userMapObject = userMap.get(key);
-//                    final Map<String, Object> userMapObjectMap = (Map<String, Object>) userMapObject;
-//
-                    UserData userData = new UserData();
-                    userData.setUserID(currentUserID);
-                    userData.setUserName((String) userMap.get("user_name"));
-                    userData.setUserProfilePicture((String) userMap.get("profile_picture"));
-                    userData.setUserStatus((String) userMap.get("current_status"));
-                    realm.copyToRealmOrUpdate(userData);
-                }
+                UserData userData = new UserData();
+                userData.setUserID(currentUserID);
+                userData.setUserName((String) userMap.get("user_name"));
+                userData.setUserProfilePicture((String) userMap.get("profile_picture"));
+                userData.setUserStatus((String) userMap.get("current_status"));
+                realm.copyToRealmOrUpdate(userData);
             });
+            Object userContactObject = userMap.get("contacts");
+            final Map<String, Object> userContactObjectMap = (Map<String, Object>) userContactObject;
+            if (userContactObjectMap != null) {
+                for (String userID : userContactObjectMap.keySet()) {
+                    Log.d(TAG, "updateUser: " + userID);
+                    readOtherUsersData(userID);
+                }
+            }
         }
         if (listener != null) {
             listener.onDatabaseUpdate();
         }
     }
 
+    private void readOtherUsersData(String userID) {
+        DatabaseReference databaseReference = database.getReference("user_specific_info").child(userID);
+
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                final Object changedData = snapshot.getValue();
+                if (changedData instanceof Map) {
+                    final Map<String, Object> userMap = (Map<String, Object>) changedData;
+                    Log.d(TAG, "different user: " + userMap);
+                    realm.executeTransaction(realm1 -> {
+                        UserData userData = new UserData();
+                        userData.setUserID(userID);
+                        userData.setUserName((String) userMap.get("user_name"));
+                        userData.setUserProfilePicture((String) userMap.get("profile_picture"));
+                        userData.setUserStatus((String) userMap.get("current_status"));
+                        realm.copyToRealmOrUpdate(userData);
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                error.getMessage();
+            }
+        });
+
+    }
 
     public void listerForUserChatChange() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -124,6 +155,7 @@ public class FireBaseDBHelper {
             final Map<String, Object> userChatMap = (Map<String, Object>) userChat;
 
             realm.executeTransaction(realm1 -> {
+//                realm.deleteAll();
                 for (String key : userChatMap.keySet()) {
                     Log.d(TAG, "updateUserChats: key: " + key);
 
@@ -136,7 +168,6 @@ public class FireBaseDBHelper {
 //                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("user_profile_pic"));
                     ChatData chatData = new ChatData();
                     chatData.setChatID(key);
-                    chatData.setChatName((String) chatObjectMap.get("chat_name"));
                     chatData.setLatestActive((String) chatObjectMap.get("latest_message_date"));
                     chatData.setLatestMessage((String) chatObjectMap.get("latest_message"));
                     chatData.setProfilePicture((String) chatObjectMap.get("user_profile_pic"));

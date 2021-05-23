@@ -29,7 +29,6 @@
             android:theme="@style/Theme.MyMessenger.NoActionBar"/>
         <activity
             android:name=".SignInActivity"
-            android:excludeFromRecents="true"
             android:theme="@style/SplashScreenTheme"
             >
             <intent-filter>

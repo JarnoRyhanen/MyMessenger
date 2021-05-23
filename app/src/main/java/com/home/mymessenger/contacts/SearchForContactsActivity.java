@@ -45,10 +45,6 @@ public class SearchForContactsActivity extends AppCompatActivity {
 
         checkForContactPermission();
 
-        contactsRecycler.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ContactRecyclerAdapter(this, contactDataList);
-        contactsRecycler.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
     }
 
     private void checkForContactPermission() {
@@ -69,7 +65,7 @@ public class SearchForContactsActivity extends AppCompatActivity {
                 null,
                 null,
                 null,
-                null
+                sortAscending
         );
 
         if (cursor.getCount() > 0) {
@@ -99,6 +95,9 @@ public class SearchForContactsActivity extends AppCompatActivity {
             }
             cursor.close();
         }
+        contactsRecycler.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new ContactRecyclerAdapter(this, contactDataList);
+        contactsRecycler.setAdapter(adapter);
     }
 
     @Override
@@ -121,7 +120,6 @@ public class SearchForContactsActivity extends AppCompatActivity {
 
         androidx.appcompat.widget.SearchView searchView = (androidx.appcompat.widget.SearchView) searchItem.getActionView();
 
-//        SearchView searchView = (SearchView) searchItem.getActionView();
         searchView.setIconifiedByDefault(false);
         searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
 

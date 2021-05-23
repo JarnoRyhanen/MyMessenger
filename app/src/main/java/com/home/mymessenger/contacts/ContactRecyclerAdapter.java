@@ -35,9 +35,9 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
     public ContactRecyclerAdapter(Context context, List<ContactData> list) {
         this.context = context;
         this.contactDataList = list;
+        notifyDataSetChanged();
         contactDataListFull = new ArrayList<>(contactDataList);
     }
-
 
     @NonNull
     @Override
@@ -51,7 +51,6 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
     public void onBindViewHolder(@NonNull ContactRecyclerAdapter.ContactViewHolder holder, int position) {
 
         ContactData data = contactDataList.get(position);
-
         holder.contactName.setText(data.getContactName());
         holder.contactPhoneNumber.setText(data.getContactPhoneNumber());
     }
@@ -69,7 +68,6 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
         public ContactViewHolder(@NonNull View itemView) {
             super(itemView);
             itemView.setOnClickListener(onRowClick);
-
 
             contactName = itemView.findViewById(R.id.contact_person_name);
             contactPhoneNumber = itemView.findViewById(R.id.contact_person_phone_number);

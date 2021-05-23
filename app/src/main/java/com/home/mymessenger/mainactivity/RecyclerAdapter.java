@@ -2,6 +2,7 @@ package com.home.mymessenger.mainactivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,19 +12,30 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.imageview.ShapeableImageView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.home.mymessenger.IntentKeys;
 import com.home.mymessenger.PrivateMessageScreen;
 import com.home.mymessenger.R;
 import com.home.mymessenger.data.ChatData;
+import com.home.mymessenger.data.UserData;
+import com.home.mymessenger.dp.RealmHelper;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.realm.Realm;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatViewHolder> {
 
     private final static String TAG = "RecyclerAdapter";
     private final Context context;
     private final List<ChatData> list = new ArrayList<>();
+
+    private UserData userData;
+    private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private final Realm realm = RealmHelper.getInstance().getRealm();
 
     public RecyclerAdapter(Context context) {
         this.context = context;
@@ -44,6 +56,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
         holder.date.setText(data.getLatestActive());
         holder.latestMessage.setText(data.getLatestMessage());
 
+        userData = realm.where(UserData.class).equalTo("userName", data.getUserName()).findFirst();
+        Log.d(TAG, "onBindViewHolder: " + data.getUserName() + userData);
+        if (userData != null) {
+            Picasso.get().load(userData.getUserProfilePicture()).into(holder.image);
+        }
     }
 
     public void add(ChatData data) {
@@ -66,6 +83,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
         public TextView userName;
         public TextView latestMessage;
         public ShapeableImageView image;
+
 
         public ChatViewHolder(@NonNull View itemView) {
             super(itemView);

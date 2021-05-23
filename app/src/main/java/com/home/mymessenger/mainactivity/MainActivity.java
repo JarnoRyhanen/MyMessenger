@@ -2,15 +2,12 @@ package com.home.mymessenger.mainactivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.home.mymessenger.R;
-import com.home.mymessenger.UserProfileActivity;
-import com.home.mymessenger.contacts.SearchForContactsActivity;
-import com.home.mymessenger.data.ChatData;
-import com.home.mymessenger.dp.FireBaseDBHelper;
-import com.home.mymessenger.dp.RealmHelper;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,13 +15,13 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
-import android.view.View;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.EditText;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.home.mymessenger.R;
+import com.home.mymessenger.UserProfileActivity;
+import com.home.mymessenger.contacts.SearchForContactsActivity;
+import com.home.mymessenger.data.ChatData;
+import com.home.mymessenger.dp.FireBaseDBHelper;
+import com.home.mymessenger.dp.RealmHelper;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -65,46 +62,41 @@ public class MainActivity extends AppCompatActivity {
     private void startFireBaseListening() {
         FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
         helper.setListener(this::updateContent);
-        helper.listerForUserChatChange();
 //        helper.listenForChatDataChange("chat1");
-        helper.listenForUserChange();
+        helper.listerForUserChatChange();
     }
+
+    private boolean isRan = false;
 
     private void updateContent() {
-        adapter.clear();
-        Realm realm = RealmHelper.getInstance().getRealm();
+        if (!isRan) {
+            adapter.clear();
+            Realm realm = RealmHelper.getInstance().getRealm();
 
-        RealmResults<ChatData> data = realm.where(ChatData.class).findAll();
+            RealmResults<ChatData> data = realm.where(ChatData.class).findAll();
 
-        for (ChatData data1 : data) {
-            adapter.add(data1);
+            for (ChatData data1 : data) {
+                adapter.add(data1);
+            }
+            adapter.notifyDataSetChanged();
+            isRan = true;
         }
-        adapter.notifyDataSetChanged();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, UserProfileActivity.class);
             startActivity(intent);
-
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 

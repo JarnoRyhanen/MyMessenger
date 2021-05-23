@@ -62,11 +62,15 @@ public class ChangeUserNameFragment extends Fragment {
 
         if (user != null) {
             user.updateProfile(profileUpdates).addOnCompleteListener(task -> {
-                DatabaseReference statusRef = ref.child("users").child(user.getUid());
-                Map<String, Object> userObjectMap = new HashMap<>();
-                userObjectMap.put("user_name", user.getDisplayName());
-                statusRef.updateChildren(userObjectMap);
+                DatabaseReference userRef = ref.child("user_specific_info").child(user.getUid());
+                Map<String, Object> userMap = new HashMap<>();
+                userMap.put("user_name", user.getDisplayName());
+                userRef.updateChildren(userMap);
 
+                DatabaseReference userSpecificInfoRef = ref.child("users");
+                Map<String, Object> userSpecificInfoMap = new HashMap<>();
+                userSpecificInfoMap.put(user.getUid(), user.getDisplayName());
+                userSpecificInfoRef.updateChildren(userSpecificInfoMap);
             });
         }
         getParentFragmentManager().popBackStack();

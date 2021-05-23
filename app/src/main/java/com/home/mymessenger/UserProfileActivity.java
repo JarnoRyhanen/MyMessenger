@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.fragments.ChangeStatusFragment;
 import com.home.mymessenger.fragments.UserProfileFragment;
 
@@ -24,8 +25,14 @@ public class UserProfileActivity extends AppCompatActivity implements ChangeStat
         if (savedInstanceState == null) {
 
             userProfileFragment = new UserProfileFragment();
+            startFireBaseListening();
             openFragment();
         }
+    }
+
+    private void startFireBaseListening() {
+        FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
+        helper.listenForUserChange();
     }
 
     private void openFragment() {

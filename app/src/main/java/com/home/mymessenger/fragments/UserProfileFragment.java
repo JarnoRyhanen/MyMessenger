@@ -192,7 +192,7 @@ public class UserProfileFragment extends Fragment{
 
     private void updateProfilePicture(Uri uri) {
         if (user != null) {
-            DatabaseReference databaseReference = ref.child("users").child(user.getUid());
+            DatabaseReference databaseReference = ref.child("user_specific_info").child(user.getUid());
 
             Map<String, Object> userObjectMap = new HashMap<>();
             userObjectMap.put("profile_picture", uri.toString());

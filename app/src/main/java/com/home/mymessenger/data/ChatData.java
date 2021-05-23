@@ -8,7 +8,6 @@ public class ChatData extends RealmObject {
 
     @PrimaryKey
     private String chatID;
-    private String chatName;
     private String userName;
     private String profilePicture;
     private RealmList<MessageData> messages = new RealmList<>();
@@ -21,14 +20,6 @@ public class ChatData extends RealmObject {
 
     public void setChatID(String chatID) {
         this.chatID = chatID;
-    }
-
-    public String getChatName() {
-        return chatName;
-    }
-
-    public void setChatName(String chatName) {
-        this.chatName = chatName;
     }
 
     public String getUserName() {

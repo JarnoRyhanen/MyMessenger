@@ -79,7 +79,7 @@ public class ChangeStatusFragment extends Fragment {
     private void saveStatus() {
         CharSequence newStatus = statusEditText.getText();
 
-        DatabaseReference statusRef = ref.child("users").child(user.getUid());
+        DatabaseReference statusRef = ref.child("user_specific_info").child(user.getUid());
         Map<String, Object> statusMap = new HashMap<>();
         statusMap.put("current_status", newStatus.toString());
         statusRef.updateChildren(statusMap);

@@ -82,18 +82,23 @@ public class SignInActivity extends AppCompatActivity {
 
             Log.d(TAG, "onActivityResult:  user id: " + userID + " , username: " + userName);
 
+            DatabaseReference userSpecificInfoRef = ref.child("user_specific_info").child(userID);
 
-            DatabaseReference databaseReference = ref.child("users").child(userID);
-
-            Map<String, Object> userObjectMap = new HashMap<>();
-            userObjectMap.put("user_name", userName);
+            Map<String, Object> userSpecificInfoObjectMap = new HashMap<>();
+            userSpecificInfoObjectMap.put("user_name", userName);
             try {
-                userObjectMap.put("current_status", userData.getUserStatus());
-                userObjectMap.put("profile_picture", userData.getUserProfilePicture());
+                userSpecificInfoObjectMap.put("current_status", userData.getUserStatus());
+                userSpecificInfoObjectMap.put("profile_picture", userData.getUserProfilePicture());
             } catch (NullPointerException e) {
                 e.printStackTrace();
             }
-            databaseReference.updateChildren(userObjectMap);
+            userSpecificInfoRef.updateChildren(userSpecificInfoObjectMap);
+
+            DatabaseReference userRef = ref.child("users");
+
+            Map<String, Object> userObjectMap = new HashMap<>();
+            userObjectMap.put(userID, userName);
+            userRef.updateChildren(userObjectMap);
 
             startMainActivity();
 
@@ -112,8 +117,10 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void startMainActivity() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+        FireBaseDBHelper.getInstance().setListener(() -> {
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            finish();
+        });
+        FireBaseDBHelper.getInstance().listerForUserChatChange();
     }
 }
