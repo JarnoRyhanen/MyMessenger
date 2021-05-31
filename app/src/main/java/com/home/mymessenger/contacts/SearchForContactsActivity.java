@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,11 +22,21 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.home.mymessenger.R;
 import com.home.mymessenger.data.ContactData;
+import com.home.mymessenger.dp.FireBaseDBHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SearchForContactsActivity extends AppCompatActivity {
 
@@ -35,6 +46,12 @@ public class SearchForContactsActivity extends AppCompatActivity {
     private RecyclerView contactsRecycler;
     private List<ContactData> contactDataList = new ArrayList<>();
     private ContactRecyclerAdapter adapter;
+
+    private final FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private final DatabaseReference ref = database.getReference();
+
+    private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private final FireBaseDBHelper fireBaseDBHelper = new FireBaseDBHelper();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,11 +70,11 @@ public class SearchForContactsActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_CONTACT);
         } else {
-            getContactList();
+            checkForUser();
         }
     }
 
-    private void getContactList() {
+    private void getContactList(String foundUserName) {
         Uri uri = ContactsContract.Contacts.CONTENT_URI;
 
         String sortAscending = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC";
@@ -67,30 +84,30 @@ public class SearchForContactsActivity extends AppCompatActivity {
                 null,
                 sortAscending
         );
-
         if (cursor.getCount() > 0) {
             while (cursor.moveToNext()) {
 
                 String contactID = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-                String contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                String contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)).trim();
                 Uri phoneUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
 
-                Cursor phoneCursor = getContentResolver().query(
-                        phoneUri,
-                        null,
-                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " =?",
-                        new String[]{contactID},
-                        null);
+                if (contactName.equals(foundUserName)) {
+                    Cursor phoneCursor = getContentResolver().query(
+                            phoneUri,
+                            null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " =?",
+                            new String[]{contactID},
+                            null);
+                    if (phoneCursor.moveToNext()) {
+                        String contactPhoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
-                if (phoneCursor.moveToNext()) {
-                    String contactPhoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        ContactData data = new ContactData();
+                        data.setContactName(contactName);
+                        data.setContactPhoneNumber(contactPhoneNumber);
+                        contactDataList.add(data);
 
-                    ContactData data = new ContactData();
-                    data.setContactName(contactName);
-                    data.setContactPhoneNumber(contactPhoneNumber);
-                    contactDataList.add(data);
-
-                    phoneCursor.close();
+                        phoneCursor.close();
+                    }
                 }
             }
             cursor.close();
@@ -104,7 +121,7 @@ public class SearchForContactsActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CONTACT && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            getContactList();
+            checkForUser();
         } else {
             Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
             checkForContactPermission();
@@ -140,5 +157,26 @@ public class SearchForContactsActivity extends AppCompatActivity {
     }
 
     public void onClick(View view) {
+    }
+
+    private void checkForUser() {
+
+        DatabaseReference userRef = ref.child("users");
+        userRef.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                final Map<String, Object> userMap = (Map<String, Object>) snapshot.getValue();
+                for (String key : userMap.keySet()) {
+                    String foundUserName = userMap.get(key).toString().trim();
+                    Log.d(TAG, "onDataChange: " + foundUserName);
+                    getContactList(foundUserName);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                error.getMessage();
+            }
+        });
     }
 }

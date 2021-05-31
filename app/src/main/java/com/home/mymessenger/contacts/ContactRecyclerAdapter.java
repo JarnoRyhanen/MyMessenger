@@ -1,6 +1,5 @@
 package com.home.mymessenger.contacts;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,9 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.home.mymessenger.CustomDialog;
 import com.home.mymessenger.R;
-import com.home.mymessenger.UserProfileActivity;
 import com.home.mymessenger.data.ContactData;
-import com.home.mymessenger.fragments.UserProfileFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +46,6 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
 
     @Override
     public void onBindViewHolder(@NonNull ContactRecyclerAdapter.ContactViewHolder holder, int position) {
-
         ContactData data = contactDataList.get(position);
         holder.contactName.setText(data.getContactName());
         holder.contactPhoneNumber.setText(data.getContactPhoneNumber());

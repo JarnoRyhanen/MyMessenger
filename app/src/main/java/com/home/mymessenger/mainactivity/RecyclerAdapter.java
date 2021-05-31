@@ -57,7 +57,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
         holder.latestMessage.setText(data.getLatestMessage());
 
         userData = realm.where(UserData.class).equalTo("userName", data.getUserName()).findFirst();
-        Log.d(TAG, "onBindViewHolder: " + data.getUserName() + userData);
+        Log.d(TAG, "onBindViewHolder: " + data.getUserName() + " userdata: " + userData);
         if (userData != null) {
             Picasso.get().load(userData.getUserProfilePicture()).into(holder.image);
         }

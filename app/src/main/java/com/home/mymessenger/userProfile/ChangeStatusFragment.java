@@ -1,18 +1,18 @@
-package com.home.mymessenger.fragments;
+package com.home.mymessenger.userProfile;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,7 +21,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.home.mymessenger.R;
 import com.home.mymessenger.data.UserData;
-import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
 
 import java.util.HashMap;
@@ -40,16 +39,6 @@ public class ChangeStatusFragment extends Fragment {
 
     private TextInputEditText statusEditText;
     private MaterialButton saveButton;
-
-    public void setListener(ChangeStatusFragmentListener listener) {
-        this.listener = listener;
-    }
-
-    private ChangeStatusFragmentListener listener;
-
-    public interface ChangeStatusFragmentListener {
-        void onStatusChanged(CharSequence status);
-    }
 
     @Nullable
     @Override
@@ -82,26 +71,16 @@ public class ChangeStatusFragment extends Fragment {
         DatabaseReference statusRef = ref.child("user_specific_info").child(user.getUid());
         Map<String, Object> statusMap = new HashMap<>();
         statusMap.put("current_status", newStatus.toString());
-        statusRef.updateChildren(statusMap);
-
-        getParentFragmentManager().popBackStack();
-        listener.onStatusChanged(newStatus);
+        statusRef.updateChildren(statusMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                closeKeyboard(saveButton);
+                getParentFragmentManager().popBackStack();
+            }
+        });
     }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        if (context instanceof ChangeStatusFragmentListener) {
-            listener = (ChangeStatusFragmentListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + " must implement ChangeStatusFragmentListener");
-        }
-    }
-
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        listener = null;
+    private void closeKeyboard(View v) {
+        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
     }
 }

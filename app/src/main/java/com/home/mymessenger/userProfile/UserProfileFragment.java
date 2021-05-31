@@ -1,4 +1,4 @@
-package com.home.mymessenger.fragments;
+package com.home.mymessenger.userProfile;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -39,7 +39,7 @@ import io.realm.Realm;
 
 import static android.app.Activity.RESULT_OK;
 
-public class UserProfileFragment extends Fragment{
+public class UserProfileFragment extends Fragment {
 
     private final static String TAG = "UserProfileActivity";
     private static final int PICK_IMAGE = 100;
@@ -70,6 +70,7 @@ public class UserProfileFragment extends Fragment{
         View view = inflater.inflate(R.layout.user_profile_fragment, container, false);
 
 //        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        userData = realm.where(UserData.class).equalTo("userID", user.getUid()).findFirst();
 
         profilePicture = view.findViewById(R.id.user_profile_fragment_profile_picture);
         userNameLayout = view.findViewById(R.id.user_profile_fragment_user_name_layout);
@@ -86,28 +87,21 @@ public class UserProfileFragment extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
-        loadUserStatusAndUserName();
-        loadImage();
+        if (userData != null) {
+            loadUserStatusAndUserName();
+            loadImage();
+        }
     }
 
     private void loadUserStatusAndUserName() {
         Log.d(TAG, "updateUserStatus: e");
         if (user != null) {
             userNameEditText.setText(user.getDisplayName());
-            userData = realm.where(UserData.class).equalTo("userID", user.getUid()).findFirst();
             if (userData != null) {
                 String status = userData.getUserStatus();
                 Log.d(TAG, "updateUserStatus new status is: " + status);
                 statusEditText.setText(status);
             }
-        }
-    }
-
-    public void updateStatus(CharSequence newStatus) {
-        try {
-            statusEditText.setText(newStatus);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
         }
     }
 
@@ -118,25 +112,7 @@ public class UserProfileFragment extends Fragment{
     }
 
     private void loadImage() {
-//        DatabaseReference getImage = ref.child("users").child(user.getUid()).child("profile_picture");
-
-//        userData.getUserProfilePicture();
         Picasso.get().load(userData.getUserProfilePicture()).into(profilePicture);
-//        getImage.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                String link = snapshot.getValue(String.class);
-//                Log.d(TAG, "onDataChange: " + link);
-//                if (link != null) {
-//                    Picasso.get().load(link).into(profilePicture);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                Toast.makeText(getActivity(), "Error Loading Image", Toast.LENGTH_SHORT).show();
-//            }
-//        });
     }
 
     private void openImageGallery() {

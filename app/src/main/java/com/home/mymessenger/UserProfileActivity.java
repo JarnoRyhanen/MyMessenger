@@ -5,14 +5,12 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import com.home.mymessenger.dp.FireBaseDBHelper;
-import com.home.mymessenger.fragments.ChangeStatusFragment;
-import com.home.mymessenger.fragments.UserProfileFragment;
+import com.home.mymessenger.userProfile.ChangeStatusFragment;
+import com.home.mymessenger.userProfile.UserProfileFragment;
 
-public class UserProfileActivity extends AppCompatActivity implements ChangeStatusFragment.ChangeStatusFragmentListener {
+public class UserProfileActivity extends AppCompatActivity{
 
     private static final String TAG = "UserProfileActivity";
     private ChangeStatusFragment changeStatusFragment;
@@ -41,12 +39,4 @@ public class UserProfileActivity extends AppCompatActivity implements ChangeStat
                 .add(R.id.user_profile_activity_container, UserProfileFragment.class, null)
                 .commit();
     }
-
-    @Override
-    public void onStatusChanged(CharSequence status) {
-        Log.d(TAG, "onStatusChanged: " + status);
-
-//        userProfileFragment.updateStatus(status);
-    }
-
 }

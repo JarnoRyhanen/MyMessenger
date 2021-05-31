@@ -18,7 +18,9 @@ import com.home.mymessenger.data.ChatData;
 import com.home.mymessenger.data.MessageData;
 import com.home.mymessenger.data.UserData;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import io.realm.Realm;
 
@@ -28,6 +30,7 @@ public class FireBaseDBHelper {
     private static FireBaseDBHelper instance;
     private final FirebaseDatabase database = FirebaseDatabase.getInstance();
     private final Realm realm = RealmHelper.getInstance().getRealm();
+    private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
     private onDatabaseUpdateListener listener;
 
@@ -53,7 +56,6 @@ public class FireBaseDBHelper {
     public void listenForUserChange() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-
             String currentUserID = currentUser.getUid();
             DatabaseReference databaseReference = database.getReference("user_specific_info").child(currentUserID);
 
@@ -155,7 +157,6 @@ public class FireBaseDBHelper {
             final Map<String, Object> userChatMap = (Map<String, Object>) userChat;
 
             realm.executeTransaction(realm1 -> {
-//                realm.deleteAll();
                 for (String key : userChatMap.keySet()) {
                     Log.d(TAG, "updateUserChats: key: " + key);
 
@@ -236,6 +237,32 @@ public class FireBaseDBHelper {
         }
     }
 
+    public void addUserToChats(String userName, String userID) {
+        DatabaseReference databaseReference = database.getReference("user_specific_info").child(userID);
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                final Object pic = snapshot.getValue();
+                final Map<String, Object> picMap = (Map<String, Object>) pic;
+
+                Log.d(TAG, "onData change" + picMap.get("profile_picture"));
+                String pictureUrl = (String) picMap.get("profile_picture");
+
+                DatabaseReference userRef = database.getReference("user_chats")
+                        .child(user.getUid())
+                        .child(UUID.randomUUID().toString());
+                Map<String, Object> userChatMap = new HashMap<>();
+                userChatMap.put("user_name", userName);
+                userChatMap.put("user_profile_pic", pictureUrl);
+                userRef.updateChildren(userChatMap);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
     public void setListener(onDatabaseUpdateListener listener) {
         this.listener = listener;
     }
