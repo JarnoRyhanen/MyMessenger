@@ -16,8 +16,8 @@ public class SplashScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EasySplashScreen splashScreen = new EasySplashScreen(SplashScreenActivity.this)
                 .withFullScreen()
-                .withTargetActivity(SignInActivity.class)
-                .withSplashTimeOut(3000)
+                .withTargetActivity(LogInActivity.class)
+                .withSplashTimeOut(1500)
                 .withHeaderText("header")
                 .withFooterText("footer")
                 .withBeforeLogoText("Before logo")

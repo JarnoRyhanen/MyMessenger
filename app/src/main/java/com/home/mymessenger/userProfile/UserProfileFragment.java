@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.annotation.LongDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -29,6 +28,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.home.mymessenger.R;
 import com.home.mymessenger.data.UserData;
+import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
 import com.squareup.picasso.Picasso;
 
@@ -72,6 +72,8 @@ public class UserProfileFragment extends Fragment {
 
         userData = realm.where(UserData.class).equalTo("userID", user.getUid()).findFirst();
 
+        startFireBaseListening();
+
         profilePicture = view.findViewById(R.id.user_profile_fragment_profile_picture);
         userNameLayout = view.findViewById(R.id.user_profile_fragment_user_name_layout);
         userNameEditText = view.findViewById(R.id.user_profile_fragment_user_name_edit_text);
@@ -79,12 +81,18 @@ public class UserProfileFragment extends Fragment {
         statusEditText = view.findViewById(R.id.user_profile_fragment_status_edit_text);
         floatingActionButton = view.findViewById(R.id.user_profile_activity_fab);
 
+
         setOnClickListeners();
         if (userData != null) {
             loadUserStatusAndUserName();
             loadImage();
         }
         return view;
+    }
+
+    private void startFireBaseListening() {
+        FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
+        helper.listenForUserChange();
     }
 
     private void loadUserStatusAndUserName() {

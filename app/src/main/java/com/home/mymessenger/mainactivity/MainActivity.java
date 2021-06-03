@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private void startFireBaseListening() {
         FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
         helper.setListener(this::updateContent);
+        helper.listenForUserChange();
 //        helper.listenForChatDataChange("chat1");
         helper.listerForUserChatChange();
     }

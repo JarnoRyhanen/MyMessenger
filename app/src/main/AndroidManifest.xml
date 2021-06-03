@@ -42,7 +42,18 @@
             android:name=".userProfile.UserProfileActivity"
             android:windowSoftInputMode="adjustResize"
             />
-        <activity android:name=".SignInActivity" />
+        <activity
+            android:name=".SignInActivity"
+            android:theme="@style/Theme.MyMessenger.NoActionBar"
+            />
+        <activity
+            android:name=".LogInActivity"
+            android:theme="@style/Theme.MyMessenger.NoActionBar"
+            />
+        <activity
+            android:name=".ResetPasswordActivity"
+            android:theme="@style/Theme.MyMessenger.NoActionBar"
+            />
     </application>
 
 </manifest>

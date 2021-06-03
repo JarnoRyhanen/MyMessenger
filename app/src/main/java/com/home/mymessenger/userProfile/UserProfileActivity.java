@@ -1,5 +1,6 @@
 package com.home.mymessenger.userProfile;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -24,14 +25,8 @@ public class UserProfileActivity extends AppCompatActivity{
         if (savedInstanceState == null) {
 
             userProfileFragment = new UserProfileFragment();
-            startFireBaseListening();
             openFragment();
         }
-    }
-
-    private void startFireBaseListening() {
-        FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
-        helper.listenForUserChange();
     }
 
     private void openFragment() {

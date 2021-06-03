@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,13 +24,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.home.mymessenger.data.UserData;
 import com.home.mymessenger.dp.FireBaseDBHelper;
-import com.home.mymessenger.dp.RealmHelper;
 import com.home.mymessenger.mainactivity.MainActivity;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import io.realm.Realm;
 
 public class SignInActivity extends AppCompatActivity {
     private static final String TAG = "SignInActivity";
@@ -38,12 +37,12 @@ public class SignInActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
 
-    private final Realm realm = RealmHelper.getInstance().getRealm();
-
     private TextInputLayout textInputEmail;
     private TextInputLayout textInputUserName;
     private TextInputLayout textInputPassword;
     private TextInputLayout textInputPhoneNumber;
+
+    private Button signInButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,24 +54,17 @@ public class SignInActivity extends AppCompatActivity {
             textInputUserName = findViewById(R.id.text_input_user_name);
             textInputPassword = findViewById(R.id.text_input_password);
             textInputPhoneNumber = findViewById(R.id.text_input_phone_number);
-//                createSignInIntent();
+
+            signInButton = findViewById(R.id.button_sign_in);
+
             auth = FirebaseAuth.getInstance();
         }
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = auth.getCurrentUser();
-        Log.d(TAG, "onStart: " + currentUser);
-        if (currentUser != null) {
-            startMainActivity();
-        }
-    }
-
     public void onButtonClick(View view) {
-        registerUser();
+        if (view == signInButton) {
+            registerUser();
+        }
     }
 
     private boolean validateTextInput(TextInputLayout... textInputLayouts) {
@@ -181,18 +173,6 @@ public class SignInActivity extends AppCompatActivity {
                     }
                 });
     }
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if (requestCode == RC_SIGN_IN && resultCode == RESULT_OK) {
-//
-//
-//        } else {
-//            Log.d(TAG, "onActivityResult: sign in cancelled");
-//        }
-//    }
 
     public void signOut() {
         AuthUI.getInstance().delete(this).addOnCompleteListener(new OnCompleteListener<Void>() {

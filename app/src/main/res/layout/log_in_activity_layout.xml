@@ -26,7 +26,7 @@
         >
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/text_input_email"
+            android:id="@+id/text_input_email_log_in_activity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -46,32 +46,9 @@
         </com.google.android.material.textfield.TextInputLayout>
         <!--    android:background="@android:color/transparent"-->
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/text_input_user_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:boxBackgroundColor="@color/fui_transparent"
-            app:counterEnabled="true"
-            app:counterMaxLength="16"
-            app:counterTextColor="@color/white"
-            app:errorEnabled="true"
-            app:errorTextColor="@color/white"
-
-            app:startIconDrawable="@drawable/person"
-            >
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/username"
-                android:inputType="text"
-                android:maxLength="16"
-                />
-
-        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/text_input_password"
+            android:id="@+id/text_input_password_log_in_activity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
 
@@ -90,35 +67,44 @@
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/text_input_phone_number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:boxBackgroundColor="@color/fui_transparent"
-            app:errorEnabled="true"
-            app:errorTextColor="@color/white"
-
-            app:startIconDrawable="@drawable/ic_baseline_phone_24"
-
-            >
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/fui_phone_hint"
-                android:inputType="phone"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
-            android:id="@+id/button_sign_in"
+            android:id="@+id/button_log_in"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/fui_buttonShadow"
-            android:onClick="onButtonClick"
-            android:text="@string/fui_title_register_email"
+            android:backgroundTint="@color/common_google_signin_btn_text_dark_default"
+            android:text="@string/log_in"
             android:textColor="@color/black"
             />
     </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        >
+
+        <TextView
+            android:id="@+id/forgot_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Forgot password?"
+            android:textColor="#00BFFF"
+            android:textSize="20sp"
+
+            />
+
+        <TextView
+            android:id="@+id/register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:text="Register"
+            android:textColor="#00C4FF"
+            android:textSize="20sp"
+            />
+
+    </RelativeLayout>
+
 
 </LinearLayout>

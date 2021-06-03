@@ -8,4 +8,7 @@
     <string name="username">Username</string>
     <string name="status">Status</string>
     <string name="search">Search</string>
+    <string name="enter_your_email_address">Enter your email address</string>
+    <string name="reset_password">Reset password</string>
+    <string name="log_in">Log in</string>
 </resources>
