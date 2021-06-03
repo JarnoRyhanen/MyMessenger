@@ -11,6 +11,7 @@ public class UserData extends RealmObject {
     private String userName;
     private String userStatus;
     private String userProfilePicture;
+    private String userPhoneNumber;
 
 
     public String getUserID() {
@@ -43,5 +44,13 @@ public class UserData extends RealmObject {
 
     public void setUserProfilePicture(String userProfilePicture) {
         this.userProfilePicture = userProfilePicture;
+    }
+
+    public String getUserPhoneNumber() {
+        return userPhoneNumber;
+    }
+
+    public void setUserPhoneNumber(String userPhoneNumber) {
+        this.userPhoneNumber = userPhoneNumber;
     }
 }

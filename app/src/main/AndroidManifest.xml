@@ -5,7 +5,7 @@
     >
 
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -25,25 +25,24 @@
             android:theme="@style/Theme.MyMessenger.NoActionBar"
             />
 
-        <activity android:name=".PrivateMessageScreen"
-            android:theme="@style/Theme.MyMessenger.NoActionBar"/>
         <activity
-            android:name=".SignInActivity"
-            android:theme="@style/SplashScreenTheme"
-            >
+            android:name=".PrivateMessageScreen"
+            android:theme="@style/Theme.MyMessenger.NoActionBar"
+            />
+        <activity android:name=".SplashScreenActivity"
+            android:theme="@style/SplashScreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".contacts.SearchForContactsActivity" />
         <activity
-            android:name=".contacts.SearchForContactsActivity"
-            />
-        <activity
-            android:name=".UserProfileActivity"
+            android:name=".userProfile.UserProfileActivity"
             android:windowSoftInputMode="adjustResize"
             />
+        <activity android:name=".SignInActivity" />
     </application>
 
 </manifest>

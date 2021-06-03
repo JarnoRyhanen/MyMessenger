@@ -1,4 +1,4 @@
-package com.home.mymessenger;
+package com.home.mymessenger.userProfile;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.home.mymessenger.R;
 import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.userProfile.ChangeStatusFragment;
 import com.home.mymessenger.userProfile.UserProfileFragment;

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/possible_background"
+    android:orientation="vertical"
+    tools:context=".SignInActivity"
+    >
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:cropToPadding="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/download"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        >
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:boxBackgroundColor="@color/fui_transparent"
+            app:errorEnabled="true"
+            app:errorTextColor="@color/white"
+            app:startIconDrawable="@drawable/ic_baseline_email_24"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fui_email_hint"
+                android:inputType="textEmailAddress"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+        <!--    android:background="@android:color/transparent"-->
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_user_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:boxBackgroundColor="@color/fui_transparent"
+            app:counterEnabled="true"
+            app:counterMaxLength="16"
+            app:counterTextColor="@color/white"
+            app:errorEnabled="true"
+            app:errorTextColor="@color/white"
+
+            app:startIconDrawable="@drawable/person"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/username"
+                android:inputType="text"
+                android:maxLength="16"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            app:boxBackgroundColor="@color/fui_transparent"
+            app:errorEnabled="true"
+            app:errorTextColor="@color/white"
+            app:passwordToggleEnabled="true"
+            app:startIconDrawable="@drawable/ic_baseline_password_24"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fui_password_hint"
+                android:inputType="textPassword"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_phone_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:boxBackgroundColor="@color/fui_transparent"
+            app:errorEnabled="true"
+            app:errorTextColor="@color/white"
+
+            app:startIconDrawable="@drawable/ic_baseline_phone_24"
+
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fui_phone_hint"
+                android:inputType="phone"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/fui_buttonShadow"
+            android:onClick="onButtonClick"
+            android:text="@string/fui_title_register_email"
+            android:textColor="@color/black"
+            />
+    </LinearLayout>
+
+
+</LinearLayout>

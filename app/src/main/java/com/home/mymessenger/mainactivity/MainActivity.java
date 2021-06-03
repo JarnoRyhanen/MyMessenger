@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.home.mymessenger.R;
-import com.home.mymessenger.UserProfileActivity;
+import com.home.mymessenger.userProfile.UserProfileActivity;
 import com.home.mymessenger.contacts.SearchForContactsActivity;
 import com.home.mymessenger.data.ChatData;
 import com.home.mymessenger.dp.FireBaseDBHelper;

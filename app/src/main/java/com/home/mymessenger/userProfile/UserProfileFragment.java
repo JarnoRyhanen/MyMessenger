@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.LongDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -69,7 +70,6 @@ public class UserProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.user_profile_fragment, container, false);
 
-//        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         userData = realm.where(UserData.class).equalTo("userID", user.getUid()).findFirst();
 
         profilePicture = view.findViewById(R.id.user_profile_fragment_profile_picture);
@@ -80,22 +80,17 @@ public class UserProfileFragment extends Fragment {
         floatingActionButton = view.findViewById(R.id.user_profile_activity_fab);
 
         setOnClickListeners();
-
-        return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
         if (userData != null) {
             loadUserStatusAndUserName();
             loadImage();
         }
+        return view;
     }
 
     private void loadUserStatusAndUserName() {
         Log.d(TAG, "updateUserStatus: e");
         if (user != null) {
+            Log.d(TAG, "loadUserStatusAndUserName: " + user.getDisplayName());
             userNameEditText.setText(user.getDisplayName());
             if (userData != null) {
                 String status = userData.getUserStatus();
