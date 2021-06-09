@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isRan = false;
 
     private void updateContent() {
-        if (!isRan) {
+
             adapter.clear();
             Realm realm = RealmHelper.getInstance().getRealm();
 
@@ -80,9 +80,8 @@ public class MainActivity extends AppCompatActivity {
                 adapter.add(data1);
             }
             adapter.notifyDataSetChanged();
-            isRan = true;
         }
-    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -1,6 +1,7 @@
 package com.home.mymessenger.contacts;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,8 +27,8 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
     private static final String TAG = "ContactRecyclerAdapter";
 
     private Context context;
-    private List<ContactData> contactDataList;
-    private List<ContactData> contactDataListFull;
+    private List<ContactData> contactDataList = new ArrayList<>();
+    private List<ContactData> contactDataListFull = new ArrayList<>();
 
     public ContactRecyclerAdapter(Context context, List<ContactData> list) {
         this.context = context;
@@ -72,11 +73,12 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
         private final View.OnClickListener onRowClick = view -> {
             FragmentManager fragmentManager = ((FragmentActivity) view.getContext()).getSupportFragmentManager();
 
+            Bundle bundle;
             String userName = contactName.getText().toString();
+            String phoneNumber = contactPhoneNumber.getText().toString();
 
             CustomDialog dialog = new CustomDialog();
-            dialog.show(fragmentManager, userName);
-            Log.d(TAG, "onClick: " + userName);
+            dialog.show(fragmentManager, phoneNumber.trim());
         };
     }
 

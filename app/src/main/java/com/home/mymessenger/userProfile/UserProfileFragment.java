@@ -72,7 +72,7 @@ public class UserProfileFragment extends Fragment {
 
         userData = realm.where(UserData.class).equalTo("userID", user.getUid()).findFirst();
 
-        startFireBaseListening();
+        startFireBaseListening(); 
 
         profilePicture = view.findViewById(R.id.user_profile_fragment_profile_picture);
         userNameLayout = view.findViewById(R.id.user_profile_fragment_user_name_layout);

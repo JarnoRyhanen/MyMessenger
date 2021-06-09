@@ -2,15 +2,12 @@ package com.home.mymessenger.contacts;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
@@ -24,19 +21,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.home.mymessenger.R;
 import com.home.mymessenger.data.ContactData;
 import com.home.mymessenger.dp.FireBaseDBHelper;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class SearchForContactsActivity extends AppCompatActivity {
 
@@ -44,7 +37,7 @@ public class SearchForContactsActivity extends AppCompatActivity {
 
     private static final String TAG = "SearchForContactsActivi";
     private RecyclerView contactsRecycler;
-    private List<ContactData> contactDataList = new ArrayList<>();
+    public List<ContactData> contactDataList = new ArrayList<>();
     private ContactRecyclerAdapter adapter;
 
     private final FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -61,60 +54,15 @@ public class SearchForContactsActivity extends AppCompatActivity {
         contactsRecycler = findViewById(R.id.contacts_recycler_view);
 
         checkForContactPermission();
-
     }
 
     private void checkForContactPermission() {
-
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_CONTACT);
         } else {
             checkForUser();
         }
-    }
-
-    private void getContactList(String foundUserName) {
-        Uri uri = ContactsContract.Contacts.CONTENT_URI;
-
-        String sortAscending = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC";
-        Cursor cursor = getContentResolver().query(uri,
-                null,
-                null,
-                null,
-                sortAscending
-        );
-        if (cursor.getCount() > 0) {
-            while (cursor.moveToNext()) {
-
-                String contactID = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-                String contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)).trim();
-                Uri phoneUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-
-                if (contactName.equals(foundUserName)) {
-                    Cursor phoneCursor = getContentResolver().query(
-                            phoneUri,
-                            null,
-                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " =?",
-                            new String[]{contactID},
-                            null);
-                    if (phoneCursor.moveToNext()) {
-                        String contactPhoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-
-                        ContactData data = new ContactData();
-                        data.setContactName(contactName);
-                        data.setContactPhoneNumber(contactPhoneNumber);
-                        contactDataList.add(data);
-
-                        phoneCursor.close();
-                    }
-                }
-            }
-            cursor.close();
-        }
-        contactsRecycler.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ContactRecyclerAdapter(this, contactDataList);
-        contactsRecycler.setAdapter(adapter);
     }
 
     @Override
@@ -156,27 +104,127 @@ public class SearchForContactsActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    public void onClick(View view) {
-    }
 
     private void checkForUser() {
+        startAsyncTask();
+    }
 
-        DatabaseReference userRef = ref.child("users");
-        userRef.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                final Map<String, Object> userMap = (Map<String, Object>) snapshot.getValue();
-                for (String key : userMap.keySet()) {
-                    String foundUserName = userMap.get(key).toString().trim();
-                    Log.d(TAG, "onDataChange: " + foundUserName);
-                    getContactList(foundUserName);
+
+    private void startAsyncTask() {
+        ContactDataAsyncTask task = new ContactDataAsyncTask(this);
+        task.execute();
+    }
+
+    private static class ContactDataAsyncTask extends AsyncTask<Void, Void, String> {
+
+        private WeakReference<SearchForContactsActivity> weakReference;
+
+        ContactDataAsyncTask(SearchForContactsActivity activity) {
+            weakReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            SearchForContactsActivity activity = weakReference.get();
+            if (activity == null || activity.isFinishing()) {
+                return;
+            }
+        }
+
+        @Override
+        protected synchronized String doInBackground(Void... voids) {
+
+            SearchForContactsActivity activity = weakReference.get();
+//            DatabaseReference userRef = activity.ref.child("users");
+//            userRef.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                    if (snapshot.exists()) {
+//                        final Map<String, Object> userMap = (Map<String, Object>) snapshot.getValue();
+//                        if (userMap != null) {
+//                            for (String userID : userMap.keySet()) {
+//                                String foundUserName = userMap.get(userID).toString().trim();
+//                                Log.d(TAG, "onDataChange: " + foundUserName);
+////                                getContact(userID);
+//
+//                                DatabaseReference userSpecificInfoRef = activity.ref.child("user_specific_info").child(userID).child("phone_number");
+//                                userSpecificInfoRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//                                    @Override
+//                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                                        if (snapshot.exists()) {
+//                                            String foundPhoneNumber = snapshot.getValue().toString().trim();
+//
+//                                            Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(foundPhoneNumber));
+//                                            Cursor cursor = activity.getContentResolver().query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME},
+//                                                    null,
+//                                                    null,
+//                                                    null,
+//                                                    null);
+//
+//                                            if (cursor.getCount() > 0) {
+//                                                while (cursor.moveToNext()) {
+//                                                    String contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+//                                                    String contactNumber = cursor.getString(0);
+////                                                Log.d(TAG, "onDataChange: contactnumber: " + contactNumber + " found number: " + foundPhoneNumber);
+//                                                    Log.d(TAG, "name: " + contactName + " found username: " + foundUserName +
+//                                                            " number: " + contactNumber + " found phonenumber: " + foundPhoneNumber);
+//
+//                                                    Uri phoneUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+//                                                    Cursor phoneCursor = activity.getContentResolver().query(
+//                                                            phoneUri,
+//                                                            null,
+//                                                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " =?",
+//                                                            new String[]{},
+//                                                            null);
+//                                                }
+//                                                cursor.close();
+//                                            }
+//                                        }
+//                                    }
+//
+//                                    @Override
+//                                    public void onCancelled(@NonNull DatabaseError error) {
+//
+//                                    }
+//                                });
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError error) {
+//                    error.getMessage();
+//                }
+//            });
+            activity.fireBaseDBHelper.setActivity(activity);
+            activity.fireBaseDBHelper.checkForUser1();
+            for (int i = 0; i < 1; i++) {
+                try {
+                    Thread.sleep(1000);
+                    Log.d(TAG, "doInBackground: " + i);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                error.getMessage();
             }
-        });
+            return null;
+        }
+
+        @Override
+        protected synchronized void onPostExecute(String string) {
+            super.onPostExecute(string);
+            SearchForContactsActivity activity = weakReference.get();
+            if (activity == null || activity.isFinishing()) {
+                Log.d(TAG, "onPostExecute: returned");
+                return;
+            }
+            Log.d(TAG, "checkForUser1: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            weakReference.get().contactsRecycler.setLayoutManager(new LinearLayoutManager(activity));
+            activity.adapter = new ContactRecyclerAdapter(activity, activity.contactDataList);
+            activity.contactsRecycler.setAdapter(activity.adapter);
+//            Toast.makeText(activity, "Finished", Toast.LENGTH_SHORT).show();
+        }
     }
 }

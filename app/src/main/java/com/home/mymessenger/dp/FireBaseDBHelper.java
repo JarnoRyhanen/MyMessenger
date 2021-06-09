@@ -1,12 +1,12 @@
 package com.home.mymessenger.dp;
 
-import android.media.JetPlayer;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -14,7 +14,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.home.mymessenger.contacts.SearchForContactsActivity;
 import com.home.mymessenger.data.ChatData;
+import com.home.mymessenger.data.ContactData;
 import com.home.mymessenger.data.MessageData;
 import com.home.mymessenger.data.UserData;
 
@@ -29,6 +31,7 @@ public class FireBaseDBHelper {
     private static final String TAG = "FireBaseDBHelper";
     private static FireBaseDBHelper instance;
     private final FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private final DatabaseReference ref = database.getReference();
     private final Realm realm = RealmHelper.getInstance().getRealm();
     private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -242,8 +245,8 @@ public class FireBaseDBHelper {
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                final Object pic = snapshot.getValue();
-                final Map<String, Object> picMap = (Map<String, Object>) pic;
+                final Object picture = snapshot.getValue();
+                final Map<String, Object> picMap = (Map<String, Object>) picture;
 
                 Log.d(TAG, "onData change" + picMap.get("profile_picture"));
                 String pictureUrl = (String) picMap.get("profile_picture");
@@ -263,11 +266,92 @@ public class FireBaseDBHelper {
             }
         });
     }
+
     public void setListener(onDatabaseUpdateListener listener) {
         this.listener = listener;
     }
 
     public interface onDatabaseUpdateListener {
         void onDatabaseUpdate();
+    }
+
+    private SearchForContactsActivity activity;
+
+    public void setActivity(SearchForContactsActivity activity) {
+        this.activity = activity;
+    }
+
+    public void checkForUser1() {
+        DatabaseReference userRef = ref.child("users");
+        userRef.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    final Map<String, Object> userMap = (Map<String, Object>) snapshot.getValue();
+                    if (userMap != null) {
+                        for (String key : userMap.keySet()) {
+//                            String foundUserName = userMap.get(key).toString().trim();
+                            getContact(key);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                error.getMessage();
+            }
+        });
+    }
+
+    private void getContact(String userID) {
+
+        Log.d(TAG, "getContact: " + userID);
+        DatabaseReference userSpecificInfoRef = ref.child("user_specific_info").child(userID).child("phone_number");
+        userSpecificInfoRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String phoneNumber = snapshot.getValue().toString().trim();
+                    Log.d(TAG, "onDataChange: userID: " + userID + " phone number: " + phoneNumber);
+
+                    Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
+                    Cursor cursor = activity.getContentResolver().query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME}, null, null, null);
+                    String name = "INVALID";
+                    if (cursor != null) {
+                        if (cursor.moveToFirst()) {
+                            name = cursor.getString(0).trim();
+                        }
+                    }
+
+                    Cursor phoneCursor = activity.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+                            , new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.TYPE},
+                            "DISPLAY_NAME ='" + name + "'", null, null);
+
+                    if (phoneCursor != null) {
+                        if (phoneCursor.moveToFirst()) {
+                            String contactNumber = phoneCursor.getString(0);
+                            Log.d(TAG, "getContactName: " + name + ", contact number " + contactNumber);
+                            String finalName = name;
+                            realm.executeTransaction(realm1 -> {
+                                ContactData data = new ContactData();
+                                data.setContactID(userID);
+                                data.setContactName(finalName);
+                                data.setContactPhoneNumber(contactNumber);
+                                activity.contactDataList.add(data);
+                                realm.copyToRealmOrUpdate(data);
+                            });
+                            phoneCursor.close();
+                        }
+                    }
+                    cursor.close();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "onCancelled: ERROR", error.toException().fillInStackTrace());
+            }
+        });
     }
 }

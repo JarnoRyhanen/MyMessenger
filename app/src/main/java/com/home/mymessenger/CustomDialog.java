@@ -1,6 +1,5 @@
 package com.home.mymessenger;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,13 +13,9 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
-import com.home.mymessenger.data.UserData;
+import com.home.mymessenger.data.ContactData;
 import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
 
@@ -66,41 +61,18 @@ public class CustomDialog extends AppCompatDialogFragment {
     }
 
     private void performUserQuery() {
-        Log.d(TAG, "searchForUsers:" + getTag());
 
-        String userName = getTag() != null ? getTag().trim() : null;
-        Query userSearchQuery = FirebaseDatabase.getInstance().getReference().
-                child("users")
-                .orderByValue()
-                .startAt(userName)
-                .endAt(userName);
-        userSearchQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                final Map<String, Object> userMap = (Map<String, Object>) snapshot.getValue();
-                addUserToContacts(userMap);
-            }
+        ContactData contact = realm.where(ContactData.class).equalTo("contactPhoneNumber", getTag().trim()).findFirst();
+        if (contact != null) {
+            Log.d(TAG, "performUserQuery: " + contact.getContactName() + " " + contact.getContactPhoneNumber());
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                error.getMessage();
-            }
-        });
-    }
+            DatabaseReference userRef = ref.child("user_specific_info").child(user.getUid()).child("contacts");
+            Map<String, Object> contactsMap = new HashMap<>();
+            contactsMap.put(contact.getContactID(), contact.getContactName());
+            userRef.updateChildren(contactsMap);
 
-    private void addUserToContacts(Map<String, Object> userMap) {
-        if (user != null) {
-            String userName = "";
-            String userID = "";
-            for (String id : userMap.keySet()) {
-                userName = (String) userMap.get(id);
-                userID = id;
-                DatabaseReference userRef = ref.child("user_specific_info").child(user.getUid()).child("contacts");
-                Map<String, Object> contactsMap = new HashMap<>();
-                contactsMap.put(id, userName);
-                userRef.updateChildren(contactsMap);
-            }
-            fireBaseDBHelper.addUserToChats(userName, userID);
+            fireBaseDBHelper.addUserToChats(contact.getContactName(), contact.getContactID());
         }
+
     }
 }
