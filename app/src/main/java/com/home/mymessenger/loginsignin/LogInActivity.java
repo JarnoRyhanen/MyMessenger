@@ -1,4 +1,4 @@
-package com.home.mymessenger;
+package com.home.mymessenger.loginsignin;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.home.mymessenger.R;
 import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.mainactivity.MainActivity;
 

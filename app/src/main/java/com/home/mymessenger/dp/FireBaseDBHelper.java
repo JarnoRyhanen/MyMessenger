@@ -175,7 +175,9 @@ public class FireBaseDBHelper {
                     chatData.setLatestActive((String) chatObjectMap.get("latest_message_date"));
                     chatData.setLatestMessage((String) chatObjectMap.get("latest_message"));
                     chatData.setProfilePicture((String) chatObjectMap.get("user_profile_pic"));
-                    chatData.setUserName((String) chatObjectMap.get("user_name"));
+                    chatData.setReceiver((String) chatObjectMap.get("receiver"));
+                    chatData.setReceiverID((String) chatObjectMap.get("receiverID"));
+
                     realm.copyToRealmOrUpdate(chatData);
                 }
             });
@@ -220,28 +222,30 @@ public class FireBaseDBHelper {
                         Object messageObject = messagesMap.get(messageID);
                         final Map<String, Object> messageMap = (Map<String, Object>) messageObject;
                         if (messageMap != null) {
-//                            Log.d(TAG, "loadChatContent: message content " + messageMap.get("message_content"));
-//                            Log.d(TAG, "loadChatContent: messageid " + messageID);
-//                            Log.d(TAG, "loadChatContent: sender " + messageMap.get("sender"));
-//                            Log.d(TAG, "loadChatContent: date " + messageMap.get("date"));
-//                            Log.d(TAG, "loadChatContent: " + messageID)
+                            Log.d(TAG, "loadChatContent: message content " + messageMap.get("message_content"));
+                            Log.d(TAG, "loadChatContent: messageid " + messageID);
+                            Log.d(TAG, "loadChatContent: sender " + messageMap.get("sender"));
+                            Log.d(TAG, "loadChatContent: date " + messageMap.get("date"));
+                            Log.d(TAG, "loadChatContent: " + messageID);
                             MessageData messageData = new MessageData();
                             messageData.setMessageID(messageID);
                             messageData.setMessageContent((String) messageMap.get("message_content"));
                             messageData.setSender((String) messageMap.get("sender"));
                             messageData.setDate((String) messageMap.get("date"));
+                            messageData.setReceiver((String) messageMap.get("receiver"));
+                            realm.copyToRealmOrUpdate(messageData);
                         }
                     }
                 }
             });
-        }
-        if (listener != null) {
-            listener.onDatabaseUpdate();
+            if (listener != null) {
+                listener.onDatabaseUpdate();
+            }
         }
     }
 
-    public void addUserToChats(String userName, String userID) {
-        DatabaseReference databaseReference = database.getReference("user_specific_info").child(userID);
+    public void addUserToChats(String userName, String contactID) {
+        DatabaseReference databaseReference = database.getReference("user_specific_info").child(contactID);
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -255,7 +259,8 @@ public class FireBaseDBHelper {
                         .child(user.getUid())
                         .child(UUID.randomUUID().toString());
                 Map<String, Object> userChatMap = new HashMap<>();
-                userChatMap.put("user_name", userName);
+                userChatMap.put("receiver", userName);
+                userChatMap.put("receiverID", contactID);
                 userChatMap.put("user_profile_pic", pictureUrl);
                 userRef.updateChildren(userChatMap);
             }

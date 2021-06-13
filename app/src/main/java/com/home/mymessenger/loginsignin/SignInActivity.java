@@ -1,4 +1,4 @@
-package com.home.mymessenger;
+package com.home.mymessenger.loginsignin;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,7 +6,6 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,6 +21,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.home.mymessenger.R;
 import com.home.mymessenger.data.UserData;
 import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.mainactivity.MainActivity;
@@ -190,4 +190,6 @@ public class SignInActivity extends AppCompatActivity {
         });
         FireBaseDBHelper.getInstance().listerForUserChatChange();
     }
+
+
 }

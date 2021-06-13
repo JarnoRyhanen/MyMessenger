@@ -52,7 +52,7 @@ public class SearchForContactsActivity extends AppCompatActivity {
         setContentView(R.layout.contacts_list_view);
 
         contactsRecycler = findViewById(R.id.contacts_recycler_view);
-
+        contactsRecycler.setHasFixedSize(true);
         checkForContactPermission();
     }
 

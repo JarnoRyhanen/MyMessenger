@@ -17,11 +17,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.home.mymessenger.R;
-import com.home.mymessenger.userProfile.UserProfileActivity;
 import com.home.mymessenger.contacts.SearchForContactsActivity;
 import com.home.mymessenger.data.ChatData;
 import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
+import com.home.mymessenger.userProfile.UserProfileActivity;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.main_activity_recycler_view);
+        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new RecyclerAdapter(this);
         recyclerView.setAdapter(adapter);
@@ -63,14 +64,13 @@ public class MainActivity extends AppCompatActivity {
         FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
         helper.setListener(this::updateContent);
         helper.listenForUserChange();
-//        helper.listenForChatDataChange("chat1");
         helper.listerForUserChatChange();
     }
 
     private boolean isRan = false;
 
     private void updateContent() {
-
+        if (!isRan) {
             adapter.clear();
             Realm realm = RealmHelper.getInstance().getRealm();
 
@@ -80,7 +80,9 @@ public class MainActivity extends AppCompatActivity {
                 adapter.add(data1);
             }
             adapter.notifyDataSetChanged();
+            isRan = true;
         }
+    }
 
 
     @Override

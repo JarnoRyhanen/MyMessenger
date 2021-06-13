@@ -28,6 +28,7 @@
         <activity
             android:name=".PrivateMessageScreen"
             android:theme="@style/Theme.MyMessenger.NoActionBar"
+            android:parentActivityName=".mainactivity.MainActivity"
             />
         <activity android:name=".SplashScreenActivity"
             android:theme="@style/SplashScreenTheme">
@@ -43,15 +44,15 @@
             android:windowSoftInputMode="adjustResize"
             />
         <activity
-            android:name=".SignInActivity"
+            android:name=".loginsignin.SignInActivity"
             android:theme="@style/Theme.MyMessenger.NoActionBar"
             />
         <activity
-            android:name=".LogInActivity"
+            android:name=".loginsignin.LogInActivity"
             android:theme="@style/Theme.MyMessenger.NoActionBar"
             />
         <activity
-            android:name=".ResetPasswordActivity"
+            android:name=".loginsignin.ResetPasswordActivity"
             android:theme="@style/Theme.MyMessenger.NoActionBar"
             />
     </application>

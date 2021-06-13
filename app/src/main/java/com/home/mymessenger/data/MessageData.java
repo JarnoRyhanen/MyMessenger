@@ -10,6 +10,7 @@ public class MessageData extends RealmObject {
     private String messageID;
     private String messageContent;
     private String sender;
+    private String receiver;
     private String date;
 
     public String getMessageID() {
@@ -34,6 +35,14 @@ public class MessageData extends RealmObject {
 
     public void setSender(String sender) {
         this.sender = sender;
+    }
+
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
     }
 
     public String getDate() {

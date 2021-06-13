@@ -7,16 +7,22 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.home.mymessenger.loginsignin.LogInActivity;
+import com.home.mymessenger.mainactivity.MainActivity;
+
 import gr.net.maroulis.library.EasySplashScreen;
 
 public class SplashScreenActivity extends AppCompatActivity {
+
+    private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EasySplashScreen splashScreen = new EasySplashScreen(SplashScreenActivity.this)
                 .withFullScreen()
-                .withTargetActivity(LogInActivity.class)
                 .withSplashTimeOut(1500)
                 .withHeaderText("header")
                 .withFooterText("footer")
@@ -25,6 +31,12 @@ public class SplashScreenActivity extends AppCompatActivity {
                 .withBackgroundColor(Color.parseColor("#1a1b29"))
                 .withLogo(R.drawable.download);
 
+
+        if (user == null) {
+            splashScreen.withTargetActivity(LogInActivity.class);
+        } else {
+            splashScreen.withTargetActivity(MainActivity.class);
+        }
 
         View easySplashScreen = splashScreen.create();
         setContentView(easySplashScreen);

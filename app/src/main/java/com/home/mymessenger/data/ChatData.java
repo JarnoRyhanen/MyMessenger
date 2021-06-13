@@ -8,7 +8,8 @@ public class ChatData extends RealmObject {
 
     @PrimaryKey
     private String chatID;
-    private String userName;
+    private String receiver;
+    private String receiverID;
     private String profilePicture;
     private RealmList<MessageData> messages = new RealmList<>();
     private String latestMessage;
@@ -22,21 +23,28 @@ public class ChatData extends RealmObject {
         this.chatID = chatID;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getReceiver() {
+        return receiver;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
     }
 
     public String getProfilePicture() {
         return profilePicture;
     }
 
-
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public String getReceiverID() {
+        return receiverID;
+    }
+
+    public void setReceiverID(String receiverID) {
+        this.receiverID = receiverID;
     }
 
     public String getLatestMessage() {

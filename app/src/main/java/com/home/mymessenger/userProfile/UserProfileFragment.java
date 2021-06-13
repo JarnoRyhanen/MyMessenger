@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -30,6 +34,7 @@ import com.home.mymessenger.R;
 import com.home.mymessenger.data.UserData;
 import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
+import com.home.mymessenger.loginsignin.LogInActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
@@ -65,14 +70,14 @@ public class UserProfileFragment extends Fragment {
 
     private UserData userData;
 
+    private Button signOutButton;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.user_profile_fragment, container, false);
 
         userData = realm.where(UserData.class).equalTo("userID", user.getUid()).findFirst();
-
-        startFireBaseListening(); 
 
         profilePicture = view.findViewById(R.id.user_profile_fragment_profile_picture);
         userNameLayout = view.findViewById(R.id.user_profile_fragment_user_name_layout);
@@ -81,6 +86,7 @@ public class UserProfileFragment extends Fragment {
         statusEditText = view.findViewById(R.id.user_profile_fragment_status_edit_text);
         floatingActionButton = view.findViewById(R.id.user_profile_activity_fab);
 
+        signOutButton = view.findViewById(R.id.sign_out_button);
 
         setOnClickListeners();
         if (userData != null) {
@@ -88,11 +94,6 @@ public class UserProfileFragment extends Fragment {
             loadImage();
         }
         return view;
-    }
-
-    private void startFireBaseListening() {
-        FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
-        helper.listenForUserChange();
     }
 
     private void loadUserStatusAndUserName() {
@@ -109,13 +110,14 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void setOnClickListeners() {
+        signOutButton.setOnClickListener(onClickListener);
         floatingActionButton.setOnClickListener(onClickListener);
         userNameEditText.setOnClickListener(onClickListener);
         statusEditText.setOnClickListener(onClickListener);
     }
 
     private void loadImage() {
-        Picasso.get().load(userData.getUserProfilePicture()).into(profilePicture);
+        Picasso.get().load(userData.getUserProfilePicture()).fit().centerInside().into(profilePicture);
     }
 
     private void openImageGallery() {
@@ -188,9 +190,24 @@ public class UserProfileFragment extends Fragment {
                 replaceFragment(new ChangeUserNameFragment());
             } else if (v == statusEditText) {
                 replaceFragment(new ChangeStatusFragment());
+            }else if(v == signOutButton){
+                signOut();
+                Intent intent = new Intent(getActivity(), LogInActivity.class);
+                startActivity(intent);
             }
         }
     };
+
+    private void signOut() {
+        AuthUI.getInstance().signOut(getActivity()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Intent intent = new Intent(getActivity(), LogInActivity.class);
+                startActivity(intent);
+                getActivity().finish();
+            }
+        });
+    }
 
     private void replaceFragment(Fragment fragment) {
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();

@@ -1,4 +1,4 @@
-package com.home.mymessenger;
+package com.home.mymessenger.loginsignin;
 
 import android.os.Bundle;
 import android.util.Patterns;
@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.home.mymessenger.R;
 
 public class ResetPasswordActivity extends AppCompatActivity {
 

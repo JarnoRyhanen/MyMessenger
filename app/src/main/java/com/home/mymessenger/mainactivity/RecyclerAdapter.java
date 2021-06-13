@@ -52,12 +52,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
 
         ChatData data = list.get(position);
         holder.chatID = data.getChatID();
-        holder.userName.setText(data.getUserName());
+        holder.userName.setText(data.getReceiver());
         holder.date.setText(data.getLatestActive());
         holder.latestMessage.setText(data.getLatestMessage());
 
-        userData = realm.where(UserData.class).equalTo("userName", data.getUserName()).findFirst();
-        Log.d(TAG, "onBindViewHolder: " + data.getUserName() + " userdata: " + userData);
+        userData = realm.where(UserData.class).equalTo("userName", data.getReceiver()).findFirst();
+        Log.d(TAG, "onBindViewHolder: " + data.getReceiver() + " userdata: " + userData);
         if (userData != null) {
             Picasso.get().load(userData.getUserProfilePicture()).into(holder.image);
         }
@@ -98,6 +98,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
         private final View.OnClickListener onRowClick = view -> {
             Context ctx = itemView.getContext();
             Intent intent = new Intent(ctx, PrivateMessageScreen.class);
+            Log.d(TAG, "chat id: " + chatID);
             intent.putExtra(IntentKeys.CHAT_ID, chatID);
             ctx.startActivity(intent);
         };

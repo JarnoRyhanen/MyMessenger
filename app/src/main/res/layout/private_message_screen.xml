@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#e6e6e6"
     >
 
     <include
@@ -13,10 +12,42 @@
         />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:layout_below="@id/toolbar"
         android:id="@+id/private_message_screen_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_height="match_parent"
+        android:layout_above="@id/text_layout"
         />
+
+    <RelativeLayout
+        android:id="@+id/text_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        android:padding="8dp"
+        >
+
+        <EditText
+            android:id="@+id/send_message_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/send_message_image_button"
+            android:background="@color/fui_transparent"
+            android:hint="Text"
+            />
+
+        <ImageButton
+            android:id="@+id/send_message_image_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentEnd="true"
+            android:background="@drawable/ic_baseline_send_24"
+            android:backgroundTint="@color/gray"
+            />
+
+    </RelativeLayout>
+
 
 </RelativeLayout>
