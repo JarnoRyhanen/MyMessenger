@@ -14,6 +14,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.home.mymessenger.IntentKeys;
 import com.home.mymessenger.PrivateMessageScreen;
 import com.home.mymessenger.R;
@@ -23,6 +28,7 @@ import com.home.mymessenger.dp.RealmHelper;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Map;
 
 import io.realm.Realm;
 
@@ -33,6 +39,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
     private final List<ChatData> list;
     private boolean isActive;
 
+    String chatID;
 
     private UserData userData;
     private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -54,15 +61,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
 
         ChatData data = list.get(position);
+
         Log.d(TAG, "onBindViewHolder: " + data.getLatestMessage());
         holder.chatID = data.getChatID();
+        chatID = holder.chatID;
         holder.userName.setText(data.getReceiver());
-        holder.date.setText(data.getLatestActive());
-        holder.latestMessage.setText(data.getLatestMessage());
+//        holder.date.setText(data.getLatestActive());
+//        holder.latestMessage.setText(data.getLatestMessage());
+
+        lastMessage(holder.latestMessage, holder.date);
 
         userData = realm.where(UserData.class).equalTo("userID", data.getReceiverID()).findFirst();
         if (userData != null) {
             Picasso.get().load(userData.getUserProfilePicture()).into(holder.image);
+
             if (isActive) {
                 if (userData.getActivityStatus() != null && userData.getActivityStatus().equals("online")) {
                     holder.online.setVisibility(View.VISIBLE);
@@ -122,8 +134,31 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
         };
     }
 
-    private void lastMessage(String userID, TextView latestMessage){
+    private String lastMessageString;
 
+    private void lastMessage(TextView latestMessage, TextView latestMessageDate) {
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        reference.child("user_chats").child(user.getUid()).child(chatID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    final Object snapShotValue = snapshot.getValue();
+
+                    Map<String, Object> lastMessageDataMap = (Map<String, Object>) snapShotValue;
+                    lastMessageString = (String) lastMessageDataMap.get("latest_message");
+                    latestMessage.setText(lastMessageString);
+
+                    String lastMsgDate = (String) lastMessageDataMap.get("latest_message_date");
+                    latestMessageDate.setText(lastMsgDate);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
 
