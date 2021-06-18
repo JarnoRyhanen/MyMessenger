@@ -22,7 +22,6 @@ import com.home.mymessenger.data.UserData;
 import com.home.mymessenger.dp.RealmHelper;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
@@ -31,14 +30,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
 
     private final static String TAG = "RecyclerAdapter";
     private final Context context;
-    private final List<ChatData> list = new ArrayList<>();
+    private final List<ChatData> list;
+    private boolean isActive;
+
 
     private UserData userData;
     private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private final Realm realm = RealmHelper.getInstance().getRealm();
 
-    public RecyclerAdapter(Context context) {
+    public RecyclerAdapter(Context context, List<ChatData> list, boolean isActive) {
         this.context = context;
+        this.list = list;
+        this.isActive = isActive;
     }
 
     @NonNull
@@ -51,15 +54,27 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
 
         ChatData data = list.get(position);
+        Log.d(TAG, "onBindViewHolder: " + data.getLatestMessage());
         holder.chatID = data.getChatID();
         holder.userName.setText(data.getReceiver());
         holder.date.setText(data.getLatestActive());
         holder.latestMessage.setText(data.getLatestMessage());
 
-        userData = realm.where(UserData.class).equalTo("userName", data.getReceiver()).findFirst();
-        Log.d(TAG, "onBindViewHolder: " + data.getReceiver() + " userdata: " + userData);
+        userData = realm.where(UserData.class).equalTo("userID", data.getReceiverID()).findFirst();
         if (userData != null) {
             Picasso.get().load(userData.getUserProfilePicture()).into(holder.image);
+            if (isActive) {
+                if (userData.getActivityStatus() != null && userData.getActivityStatus().equals("online")) {
+                    holder.online.setVisibility(View.VISIBLE);
+                    holder.offline.setVisibility(View.INVISIBLE);
+                } else {
+                    holder.online.setVisibility(View.INVISIBLE);
+                    holder.offline.setVisibility(View.VISIBLE);
+                }
+            } else {
+                holder.online.setVisibility(View.INVISIBLE);
+                holder.offline.setVisibility(View.INVISIBLE);
+            }
         }
     }
 
@@ -83,7 +98,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
         public TextView userName;
         public TextView latestMessage;
         public ShapeableImageView image;
-
+        public ShapeableImageView online;
+        public ShapeableImageView offline;
 
         public ChatViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -93,6 +109,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
             userName = itemView.findViewById(R.id.user_name);
             latestMessage = itemView.findViewById(R.id.latest_message);
             image = itemView.findViewById(R.id.profile_icon);
+            online = itemView.findViewById(R.id.online_image);
+            offline = itemView.findViewById(R.id.offline_image);
         }
 
         private final View.OnClickListener onRowClick = view -> {
@@ -103,5 +121,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
             ctx.startActivity(intent);
         };
     }
+
+    private void lastMessage(String userID, TextView latestMessage){
+
+    }
+
 
 }

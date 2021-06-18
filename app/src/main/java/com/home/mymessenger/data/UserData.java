@@ -1,6 +1,5 @@
 package com.home.mymessenger.data;
 
-import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -9,6 +8,7 @@ public class UserData extends RealmObject {
     @PrimaryKey
     private String userID;
     private String userName;
+    private String activityStatus;
     private String userStatus;
     private String userProfilePicture;
     private String userPhoneNumber;
@@ -28,6 +28,14 @@ public class UserData extends RealmObject {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getActivityStatus() {
+        return activityStatus;
+    }
+
+    public void setActivityStatus(String activityStatus) {
+        this.activityStatus = activityStatus;
     }
 
     public String getUserStatus() {

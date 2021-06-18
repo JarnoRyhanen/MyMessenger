@@ -71,4 +71,6 @@ public class ChatData extends RealmObject {
     public void setMessages(RealmList<MessageData> messages) {
         this.messages = messages;
     }
+
+
 }

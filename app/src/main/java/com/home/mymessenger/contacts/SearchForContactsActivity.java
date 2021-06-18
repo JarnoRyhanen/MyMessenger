@@ -133,7 +133,7 @@ public class SearchForContactsActivity extends AppCompatActivity {
         }
 
         @Override
-        protected synchronized String doInBackground(Void... voids) {
+        protected String doInBackground(Void... voids) {
 
             SearchForContactsActivity activity = weakReference.get();
 //            DatabaseReference userRef = activity.ref.child("users");
@@ -213,14 +213,15 @@ public class SearchForContactsActivity extends AppCompatActivity {
         }
 
         @Override
-        protected synchronized void onPostExecute(String string) {
+        protected void onPostExecute(String string) {
             super.onPostExecute(string);
             SearchForContactsActivity activity = weakReference.get();
             if (activity == null || activity.isFinishing()) {
                 Log.d(TAG, "onPostExecute: returned");
                 return;
             }
-            Log.d(TAG, "checkForUser1: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+
+//            Log.d(TAG, "checkForUser1: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
             weakReference.get().contactsRecycler.setLayoutManager(new LinearLayoutManager(activity));
             activity.adapter = new ContactRecyclerAdapter(activity, activity.contactDataList);
             activity.contactsRecycler.setAdapter(activity.adapter);

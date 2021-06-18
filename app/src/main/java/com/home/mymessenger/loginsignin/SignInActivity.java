@@ -115,6 +115,7 @@ public class SignInActivity extends AppCompatActivity {
         userObjectMap.put("user_name", userName);
         userObjectMap.put("phone_number", phoneNumber);
         userObjectMap.put("current_status", "test");
+        userObjectMap.put("activity_status", "offline");
 
 
         DatabaseReference userRef = ref.child("users");

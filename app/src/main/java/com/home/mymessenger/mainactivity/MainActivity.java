@@ -16,6 +16,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.home.mymessenger.R;
 import com.home.mymessenger.contacts.SearchForContactsActivity;
 import com.home.mymessenger.data.ChatData;
@@ -23,65 +30,98 @@ import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
 import com.home.mymessenger.userProfile.UserProfileActivity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.onDatabaseUpdateListener, FireBaseDBHelper.onLatestMessageAddedListener {
     private static final int REQUEST_CALL = 1;
     private static final String TAG = "MainActivity";
 
     private RecyclerAdapter adapter;
     private RecyclerView recyclerView;
     private FloatingActionButton floatingActionButton;
-
+    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private Button button;
     private EditText editText;
+
+    private Realm realm = RealmHelper.getInstance().getRealm();
+
+    private final List<ChatData> chatDataList = new ArrayList<>();
+
+    private boolean isActive = true;
+    private boolean isRan = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         recyclerView = findViewById(R.id.main_activity_recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new RecyclerAdapter(this);
-        recyclerView.setAdapter(adapter);
+
 
 //        button = findViewById(R.id.soita);
 //        editText = findViewById(R.id.numero);
 
-        Log.d(TAG, "onCreate: " + adapter);
+        Log.d(TAG, "onCreate: CURRENT USER IS: " + user.getDisplayName());
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         floatingActionButton = findViewById(R.id.fab);
-        startFireBaseListening();
-    }
-
-    private void startFireBaseListening() {
-        FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
-        helper.setListener(this::updateContent);
-        helper.listenForUserChange();
-        helper.listerForUserChatChange();
-    }
-
-    private boolean isRan = false;
-
-    private void updateContent() {
         if (!isRan) {
-            adapter.clear();
-            Realm realm = RealmHelper.getInstance().getRealm();
-
-            RealmResults<ChatData> data = realm.where(ChatData.class).findAll();
-
-            for (ChatData data1 : data) {
-                adapter.add(data1);
-            }
-            adapter.notifyDataSetChanged();
+            Log.d(TAG, "onCreate: i am called");
+            startFireBaseListening();
             isRan = true;
         }
+    }
+
+    private final FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
+
+    private void startFireBaseListening() {
+        helper.setListener(this);
+        helper.setOnLatestMessageAddedListener(this);
+        helper.listenForUserSpecificInfoChange();
+        helper.listerForUserChatChange();
+        helper.listenToContactUsersDataChange();
+        getUserChats();
+    }
+
+    private void getUserChats() {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        reference.child("user_chats").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        helper.listenForLatestMessage(dataSnapshot.getKey());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                error.getMessage();
+            }
+        });
+    }
+
+    private void updateContent() {
+        chatDataList.clear();
+
+        RealmResults<ChatData> data = realm.where(ChatData.class).findAll();
+        for(ChatData chatData : data){
+            chatDataList.add(chatData);
+            Log.d(TAG, "updateContent: " + chatData.getLatestMessage());
+        }
+        adapter = new RecyclerAdapter(MainActivity.this, chatDataList, isActive);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
 
@@ -106,15 +146,33 @@ public class MainActivity extends AppCompatActivity {
         if (view == floatingActionButton) {
             Intent intent = new Intent(this, SearchForContactsActivity.class);
             startActivity(intent);
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                    .setAction("Action", null).show();
         } else if (view == button) {
 //            callPhone();
             Log.d(TAG, "onClick: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2");
         }
     }
 
-//    private void callPhone() {
+    private void updateUserActivityStatus(String status) {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+
+        Map<String, Object> activityStatusMap = new HashMap<>();
+        activityStatusMap.put("activity_status", status);
+        reference.child("user_specific_info").child(user.getUid()).updateChildren(activityStatusMap);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+//        updateUserActivityStatus("offline");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: " + isRan);
+//        updateUserActivityStatus("online");
+    }
+    //    private void callPhone() {
 //        String number = editText.getText().toString();
 //        if (number.trim().length() > 0) {
 //            if (ContextCompat.checkSelfPermission(MainActivity.this,
@@ -140,5 +198,17 @@ public class MainActivity extends AppCompatActivity {
 //                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
 //            }
 //        }
+    }
+
+    @Override
+    public void onDatabaseUpdate() {
+        Log.d(TAG, "onDatabaseUpdate: mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+        updateContent();
+    }
+
+    @Override
+    public void onLatestMessageAdded() {
+        Log.d(TAG, "onLatestMessageAdded: NEW MESSAGE ADDED");
+        updateContent();
     }
 }

@@ -1,6 +1,7 @@
 package com.home.mymessenger.dp;
 
 import android.database.Cursor;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 
 public class FireBaseDBHelper {
 
@@ -56,7 +58,7 @@ public class FireBaseDBHelper {
         return instance;
     }
 
-    public void listenForUserChange() {
+    public void listenForUserSpecificInfoChange() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             String currentUserID = currentUser.getUid();
@@ -87,41 +89,60 @@ public class FireBaseDBHelper {
                 userData.setUserName((String) userMap.get("user_name"));
                 userData.setUserProfilePicture((String) userMap.get("profile_picture"));
                 userData.setUserStatus((String) userMap.get("current_status"));
+                userData.setActivityStatus((String) userMap.get("activity_status"));
+                userData.setUserPhoneNumber((String) userMap.get("phone_number"));
                 realm.copyToRealmOrUpdate(userData);
             });
-            Object userContactObject = userMap.get("contacts");
-            final Map<String, Object> userContactObjectMap = (Map<String, Object>) userContactObject;
-            if (userContactObjectMap != null) {
-                for (String userID : userContactObjectMap.keySet()) {
-                    Log.d(TAG, "updateUser: " + userID);
-                    readOtherUsersData(userID);
-                }
+            if (listener != null) {
+                Log.d(TAG, "updateContent: LISTENER CALLED IN UPDATE USER");
+                listener.onDatabaseUpdate();
             }
         }
-        if (listener != null) {
-            listener.onDatabaseUpdate();
+    }
+
+    public void listenToContactUsersDataChange() {
+        if (user != null) {
+            DatabaseReference databaseReference = database.getReference("user_specific_info").child(user.getUid()).child("contacts");
+            databaseReference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        readOtherUsersData(dataSnapshot.getKey());
+                    }
+                    if (listener != null) {
+                        Log.d(TAG, "updateContent: LISTENER CALLED IN LISTEN TO CONTACT USERS DATA CHANGE");
+                        listener.onDatabaseUpdate();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
         }
     }
 
     private void readOtherUsersData(String userID) {
-        DatabaseReference databaseReference = database.getReference("user_specific_info").child(userID);
-
+        DatabaseReference databaseReference = ref.child("user_specific_info").child(userID);
+        Log.d(TAG, "readOtherUsersData: " + userID);
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                final Object changedData = snapshot.getValue();
-                if (changedData instanceof Map) {
-                    final Map<String, Object> userMap = (Map<String, Object>) changedData;
-                    Log.d(TAG, "different user: " + userMap);
-                    realm.executeTransaction(realm1 -> {
-                        UserData userData = new UserData();
-                        userData.setUserID(userID);
-                        userData.setUserName((String) userMap.get("user_name"));
-                        userData.setUserProfilePicture((String) userMap.get("profile_picture"));
-                        userData.setUserStatus((String) userMap.get("current_status"));
-                        realm.copyToRealmOrUpdate(userData);
-                    });
-                }
+                final Object contactSnapShotObject = snapshot.getValue();
+                final Map<String, Object> userMap = (Map<String, Object>) contactSnapShotObject;
+                Log.d(TAG, "different user: " + userMap);
+                realm.executeTransaction(realm1 -> {
+                    UserData data = new UserData();
+                    data.setUserID(userID);
+                    data.setUserName((String) userMap.get("user_name"));
+                    data.setUserProfilePicture((String) userMap.get("profile_picture"));
+                    data.setUserStatus((String) userMap.get("current_status"));
+                    data.setUserPhoneNumber((String) userMap.get("phone_number"));
+                    data.setActivityStatus((String) userMap.get("activity_status"));
+                    Log.d(TAG, "onDataChange: status" + userMap.get("activity_status"));
+                    realm.copyToRealmOrUpdate(data);
+                });
             }
 
             @Override
@@ -143,12 +164,12 @@ public class FireBaseDBHelper {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     final Object changedData = snapshot.getValue();
                     updateUserChats(changedData);
-                    Log.d(TAG, "onDataChange " + changedData);
+//                    Log.d(TAG, "onDataChange " + changedData);
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-
+                    error.getMessage();
                 }
             });
         }
@@ -177,28 +198,107 @@ public class FireBaseDBHelper {
                     chatData.setProfilePicture((String) chatObjectMap.get("user_profile_pic"));
                     chatData.setReceiver((String) chatObjectMap.get("receiver"));
                     chatData.setReceiverID((String) chatObjectMap.get("receiverID"));
-
+                    chatData.setMessages(new RealmList<>());
                     realm.copyToRealmOrUpdate(chatData);
                 }
             });
-        }
-
-        if (listener != null) {
-            listener.onDatabaseUpdate();
+            if (listener != null) {
+                Log.d(TAG, "updateC: LISTENER CALLED IN UPDATEUSERCHATS");
+                listener.onDatabaseUpdate();
+            }
         }
     }
 
+    private ValueEventListener valueEventListener;
+    private DatabaseReference chatRef;
+
     public void listenForChatDataChange(String chatID) {
+        Log.d(TAG, "listenForChatDataChange: " + valueEventListener);
+            chatRef = database.getReference("chats").child(chatID);
+            valueEventListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    final Object changedData = snapshot.getValue();
+                    loadChatContent(changedData, chatID);
+                }
 
-        DatabaseReference chatRef = database.getReference("chats").child(chatID);
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
 
-        chatRef.addValueEventListener(new ValueEventListener() {
+                }
+            };
+            chatRef.addValueEventListener(valueEventListener);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void loadChatContent(Object chat, String chatID) {
+        if (chat instanceof Map) {
+            final Map<String, Object> chatContentMap = (Map<String, Object>) chat;
+
+            ChatData chatData = realm.where(ChatData.class).equalTo("chatID", chatID).findFirst();
+            realm.beginTransaction();
+            Object messagesObject = chatContentMap.get("messages");
+            final Map<String, Object> messagesMap = (Map<String, Object>) messagesObject;
+            if (messagesMap != null) {
+                RealmList<MessageData> messageDataRealmList = new RealmList<>();
+                for (String messageID : messagesMap.keySet()) {
+                    Object messageObject = messagesMap.get(messageID);
+                    final Map<String, Object> messageMap = (Map<String, Object>) messageObject;
+                    if (messageMap != null) {
+//                            Log.d(TAG, "loadChatContent: message content " + messageMap.get("message_content"));
+//                            Log.d(TAG, "loadChatContent: messageid " + messageID);
+//                            Log.d(TAG, "loadChatContent: sender " + messageMap.get("sender"));
+//                            Log.d(TAG, "loadChatContent: date " + messageMap.get("date"));
+//                            Log.d(TAG, "loadChatContent: " + messageID);
+                        MessageData messageData = new MessageData();
+                        messageData.setMessageID(messageID);
+                        messageData.setMessageContent((String) messageMap.get("message_content"));
+                        messageData.setSender((String) messageMap.get("sender"));
+                        messageData.setDate((String) messageMap.get("date"));
+                        messageData.setReceiver((String) messageMap.get("receiver"));
+
+                        messageDataRealmList.add(realm.copyToRealmOrUpdate(messageData));
+                        chatData.setMessages(messageDataRealmList);
+
+                        realm.copyToRealmOrUpdate(chatData);
+                    }
+                }
+            }
+            realm.commitTransaction();
+            if (listener != null) {
+                Log.d(TAG, "LOAD CHAT CONTENT LISTENER CALLED: ");
+                listener.onDatabaseUpdate();
+            }
+        }
+    }
+
+    public void removeListenerFromLoadChatContent() {
+        chatRef.removeEventListener(valueEventListener);
+    }
+
+    public void listenForLatestMessage(String chatID) {
+
+        DatabaseReference reference = ref.child("chats").child(chatID).child("latest_message_and_date");
+
+        reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    Map<String, Object> latestMessageAndDateMap = (Map<String, Object>) snapshot.getValue();
+                    String latestMessage = (String) latestMessageAndDateMap.get("latest_message");
+                    String latestMessageDate = (String) latestMessageAndDateMap.get("latest_message_date");
 
-                final Object changedData = snapshot.getValue();
-                loadChatContent(changedData);
-                Log.d(TAG, "onDataChange: " + changedData);
+                    Map<String, Object> updaterMap = new HashMap<>();
+                    updaterMap.put("latest_message", latestMessage);
+                    updaterMap.put("latest_message_date", latestMessageDate);
+
+                    DatabaseReference userChatReference = ref.child("user_chats").child(user.getUid()).child(chatID);
+                    userChatReference.updateChildren(updaterMap);
+
+                    if (onLatestMessageAddedListener != null) {
+                        onLatestMessageAddedListener.onLatestMessageAdded();
+                    }
+                }
             }
 
             @Override
@@ -209,40 +309,16 @@ public class FireBaseDBHelper {
 
     }
 
-    @SuppressWarnings("unchecked")
-    private void loadChatContent(Object chat) {
-        if (chat instanceof Map) {
-            final Map<String, Object> chatContentMap = (Map<String, Object>) chat;
-            realm.executeTransaction(realm1 -> {
+    private onLatestMessageAddedListener onLatestMessageAddedListener;
 
-                Object messagesObject = chatContentMap.get("messages");
-                final Map<String, Object> messagesMap = (Map<String, Object>) messagesObject;
-                if (messagesMap != null) {
-                    for (String messageID : messagesMap.keySet()) {
-                        Object messageObject = messagesMap.get(messageID);
-                        final Map<String, Object> messageMap = (Map<String, Object>) messageObject;
-                        if (messageMap != null) {
-                            Log.d(TAG, "loadChatContent: message content " + messageMap.get("message_content"));
-                            Log.d(TAG, "loadChatContent: messageid " + messageID);
-                            Log.d(TAG, "loadChatContent: sender " + messageMap.get("sender"));
-                            Log.d(TAG, "loadChatContent: date " + messageMap.get("date"));
-                            Log.d(TAG, "loadChatContent: " + messageID);
-                            MessageData messageData = new MessageData();
-                            messageData.setMessageID(messageID);
-                            messageData.setMessageContent((String) messageMap.get("message_content"));
-                            messageData.setSender((String) messageMap.get("sender"));
-                            messageData.setDate((String) messageMap.get("date"));
-                            messageData.setReceiver((String) messageMap.get("receiver"));
-                            realm.copyToRealmOrUpdate(messageData);
-                        }
-                    }
-                }
-            });
-            if (listener != null) {
-                listener.onDatabaseUpdate();
-            }
-        }
+    public void setOnLatestMessageAddedListener(onLatestMessageAddedListener messageAddedListener) {
+        this.onLatestMessageAddedListener = messageAddedListener;
     }
+
+    public interface onLatestMessageAddedListener {
+        void onLatestMessageAdded();
+    }
+
 
     public void addUserToChats(String userName, String contactID) {
         DatabaseReference databaseReference = database.getReference("user_specific_info").child(contactID);
@@ -332,6 +408,7 @@ public class FireBaseDBHelper {
                     Cursor phoneCursor = activity.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI
                             , new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.TYPE},
                             "DISPLAY_NAME ='" + name + "'", null, null);
+
 
                     if (phoneCursor != null) {
                         if (phoneCursor.moveToFirst()) {

@@ -192,8 +192,6 @@ public class UserProfileFragment extends Fragment {
                 replaceFragment(new ChangeStatusFragment());
             }else if(v == signOutButton){
                 signOut();
-                Intent intent = new Intent(getActivity(), LogInActivity.class);
-                startActivity(intent);
             }
         }
     };

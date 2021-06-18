@@ -22,6 +22,27 @@
         app:strokeColor="@color/white"
         />
 
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/online_image"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:visibility="invisible"
+        android:background="#00FF00"
+        app:shapeAppearanceOverlay="@style/roundedImageView"
+        />
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/offline_image"
+        android:layout_width="10dp"
+        android:visibility="invisible"
+        android:layout_height="10dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:background="@color/gray"
+        app:shapeAppearanceOverlay="@style/roundedImageView"
+        />
+
     <TextView
         android:id="@+id/user_name"
         android:layout_width="wrap_content"
@@ -54,6 +75,8 @@
         android:layout_toEndOf="@id/profile_icon"
         android:textSize="16sp"
         tools:text="latest message"
+        android:ellipsize="end"
+        android:maxLines="1"
         />
 
     <View

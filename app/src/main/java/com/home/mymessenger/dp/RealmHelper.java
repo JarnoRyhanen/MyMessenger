@@ -54,6 +54,7 @@ public class RealmHelper {
                 .name(REALM_NAME)
                 .schemaVersion(REALM_VERSION)
                 .allowWritesOnUiThread(true)
+                .allowQueriesOnUiThread(true)
                 .deleteRealmIfMigrationNeeded()
                 .build();
         // Use the config
