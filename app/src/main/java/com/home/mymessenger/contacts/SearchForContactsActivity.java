@@ -225,6 +225,9 @@ public class SearchForContactsActivity extends AppCompatActivity {
             weakReference.get().contactsRecycler.setLayoutManager(new LinearLayoutManager(activity));
             activity.adapter = new ContactRecyclerAdapter(activity, activity.contactDataList);
             activity.contactsRecycler.setAdapter(activity.adapter);
+            for(ContactData a : activity.contactDataList){
+                Log.d(TAG, "onPostExecute: " + a.getContactName());
+            }
 //            Toast.makeText(activity, "Finished", Toast.LENGTH_SHORT).show();
         }
     }

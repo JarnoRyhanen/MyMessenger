@@ -62,16 +62,6 @@ public class LogInActivity extends AppCompatActivity {
         setOnClickListeners();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = auth.getCurrentUser();
-        Log.d(TAG, "onStart: " + currentUser);
-        if (currentUser != null) {
-            startMainActivity();
-        }
-    }
-
     private void setOnClickListeners() {
         logInButton.setOnClickListener(onClickListener);
         forgotPasswordTextView.setOnClickListener(onClickListener);

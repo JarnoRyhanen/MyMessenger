@@ -99,7 +99,15 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         });
         loadChat();
         setToolBar();
+        addChatToReceiver(chatData.getReceiverID());
         isRan = true;
+    }
+
+    private void addChatToReceiver(String receiverID) {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+
+
+        reference.child("user_chats").child(receiverID).child(chatID);
     }
 
     private String getDate() {

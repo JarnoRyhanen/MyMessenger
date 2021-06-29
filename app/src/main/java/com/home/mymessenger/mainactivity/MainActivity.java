@@ -1,6 +1,8 @@
 package com.home.mymessenger.mainactivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -49,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
     private Button button;
     private EditText editText;
 
+    private final FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
+
     private Realm realm = RealmHelper.getInstance().getRealm();
 
     private final List<ChatData> chatDataList = new ArrayList<>();
@@ -64,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        Log.d(TAG, "onCreate: internet connection: " + isNetworkConnected());
 
 //        button = findViewById(R.id.soita);
 //        editText = findViewById(R.id.numero);
@@ -74,14 +79,20 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
         setSupportActionBar(toolbar);
 
         floatingActionButton = findViewById(R.id.fab);
-        if (!isRan) {
+        if (!isRan && isNetworkConnected()) {
             Log.d(TAG, "onCreate: i am called");
             startFireBaseListening();
             isRan = true;
+        }else {
+            updateContent();
         }
     }
 
-    private final FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
+    }
 
     private void startFireBaseListening() {
         helper.setListener(this);

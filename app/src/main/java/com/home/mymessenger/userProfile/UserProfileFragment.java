@@ -16,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,17 +33,20 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.home.mymessenger.R;
+import com.home.mymessenger.data.InboxData;
 import com.home.mymessenger.data.UserData;
-import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
 import com.home.mymessenger.loginsignin.LogInActivity;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -57,6 +62,9 @@ public class UserProfileFragment extends Fragment {
     private TextInputEditText statusEditText;
     private FloatingActionButton floatingActionButton;
 
+    private RecyclerView inboxRecycler;
+    private InboxRecyclerViewAdapter adapter;
+
     private Uri imageUri;
 
     private final FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -69,8 +77,9 @@ public class UserProfileFragment extends Fragment {
     private final Realm realm = RealmHelper.getInstance().getRealm();
 
     private UserData userData;
-
     private Button signOutButton;
+
+    private List<InboxData> inboxDataList = new ArrayList<>();
 
     @Nullable
     @Override
@@ -86,14 +95,33 @@ public class UserProfileFragment extends Fragment {
         statusEditText = view.findViewById(R.id.user_profile_fragment_status_edit_text);
         floatingActionButton = view.findViewById(R.id.user_profile_activity_fab);
 
+        inboxRecycler = view.findViewById(R.id.user_profile_inbox_recycler);
+        inboxRecycler.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        linearLayoutManager.setStackFromEnd(true);
+        inboxRecycler.setLayoutManager(linearLayoutManager);
+
         signOutButton = view.findViewById(R.id.sign_out_button);
 
         setOnClickListeners();
         if (userData != null) {
             loadUserStatusAndUserName();
             loadImage();
+            updateInbox();
         }
         return view;
+    }
+
+    private void updateInbox() {
+        inboxDataList.clear();
+
+        RealmResults<InboxData> inboxData = realm.where(InboxData.class).findAll();
+
+        inboxDataList.addAll(inboxData);
+
+        adapter = new InboxRecyclerViewAdapter(getActivity(), inboxDataList);
+        inboxRecycler.setAdapter(adapter);
+
     }
 
     private void loadUserStatusAndUserName() {

@@ -2,6 +2,7 @@ package com.home.mymessenger.mainactivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,8 +67,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
         holder.chatID = data.getChatID();
         chatID = holder.chatID;
         holder.userName.setText(data.getReceiver());
-//        holder.date.setText(data.getLatestActive());
-//        holder.latestMessage.setText(data.getLatestMessage());
+        holder.date.setText(data.getLatestActive());
+        holder.latestMessage.setText(data.getLatestMessage());
 
         lastMessage(holder.latestMessage, holder.date);
 

@@ -1,7 +1,6 @@
 package com.home.mymessenger.dp;
 
 import android.database.Cursor;
-import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -18,6 +17,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.home.mymessenger.contacts.SearchForContactsActivity;
 import com.home.mymessenger.data.ChatData;
 import com.home.mymessenger.data.ContactData;
+import com.home.mymessenger.data.InboxData;
 import com.home.mymessenger.data.MessageData;
 import com.home.mymessenger.data.UserData;
 
@@ -129,20 +129,22 @@ public class FireBaseDBHelper {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                final Object contactSnapShotObject = snapshot.getValue();
-                final Map<String, Object> userMap = (Map<String, Object>) contactSnapShotObject;
-                Log.d(TAG, "different user: " + userMap);
-                realm.executeTransaction(realm1 -> {
-                    UserData data = new UserData();
-                    data.setUserID(userID);
-                    data.setUserName((String) userMap.get("user_name"));
-                    data.setUserProfilePicture((String) userMap.get("profile_picture"));
-                    data.setUserStatus((String) userMap.get("current_status"));
-                    data.setUserPhoneNumber((String) userMap.get("phone_number"));
-                    data.setActivityStatus((String) userMap.get("activity_status"));
-                    Log.d(TAG, "onDataChange: status" + userMap.get("activity_status"));
-                    realm.copyToRealmOrUpdate(data);
-                });
+                if (snapshot.exists()) {
+                    final Object contactSnapShotObject = snapshot.getValue();
+                    final Map<String, Object> userMap = (Map<String, Object>) contactSnapShotObject;
+                    Log.d(TAG, "different user: " + userMap);
+                    realm.executeTransaction(realm1 -> {
+                        UserData data = new UserData();
+                        data.setUserID(userID);
+                        data.setUserName((String) userMap.get("user_name"));
+                        data.setUserProfilePicture((String) userMap.get("profile_picture"));
+                        data.setUserStatus((String) userMap.get("current_status"));
+                        data.setUserPhoneNumber((String) userMap.get("phone_number"));
+                        data.setActivityStatus((String) userMap.get("activity_status"));
+                        Log.d(TAG, "onDataChange: status" + userMap.get("activity_status"));
+                        realm.copyToRealmOrUpdate(data);
+                    });
+                }
             }
 
             @Override
@@ -162,9 +164,13 @@ public class FireBaseDBHelper {
             myRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    final Object changedData = snapshot.getValue();
-                    updateUserChats(changedData);
+                    if (snapshot.exists()) {
+                        final Object changedData = snapshot.getValue();
+                        updateUserChats(changedData);
 //                    Log.d(TAG, "onDataChange " + changedData);
+                    } else {
+                        Log.d(TAG, "onDataChange:   NO INTERNET");
+                    }
                 }
 
                 @Override
@@ -277,36 +283,37 @@ public class FireBaseDBHelper {
     }
 
     public void listenForLatestMessage(String chatID) {
+        if (user != null) {
+            DatabaseReference reference = ref.child("chats").child(chatID).child("latest_message_and_date");
 
-        DatabaseReference reference = ref.child("chats").child(chatID).child("latest_message_and_date");
+            reference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        Map<String, Object> latestMessageAndDateMap = (Map<String, Object>) snapshot.getValue();
+                        String latestMessage = (String) latestMessageAndDateMap.get("latest_message");
+                        String latestMessageDate = (String) latestMessageAndDateMap.get("latest_message_date");
 
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    Map<String, Object> latestMessageAndDateMap = (Map<String, Object>) snapshot.getValue();
-                    String latestMessage = (String) latestMessageAndDateMap.get("latest_message");
-                    String latestMessageDate = (String) latestMessageAndDateMap.get("latest_message_date");
+                        Map<String, Object> updaterMap = new HashMap<>();
+                        updaterMap.put("latest_message", latestMessage);
+                        updaterMap.put("latest_message_date", latestMessageDate);
 
-                    Map<String, Object> updaterMap = new HashMap<>();
-                    updaterMap.put("latest_message", latestMessage);
-                    updaterMap.put("latest_message_date", latestMessageDate);
+                        DatabaseReference userChatReference = ref.child("user_chats").child(user.getUid()).child(chatID);
+                        userChatReference.updateChildren(updaterMap);
 
-                    DatabaseReference userChatReference = ref.child("user_chats").child(user.getUid()).child(chatID);
-                    userChatReference.updateChildren(updaterMap);
-
-                    if (onLatestMessageAddedListener != null) {
-                        onLatestMessageAddedListener.onLatestMessageAdded();
+                        if (onLatestMessageAddedListener != null) {
+                            onLatestMessageAddedListener.onLatestMessageAdded();
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
 
-            }
-        });
+                }
+            });
 
+        }
     }
 
     private onLatestMessageAddedListener onLatestMessageAddedListener;
@@ -319,6 +326,45 @@ public class FireBaseDBHelper {
         void onLatestMessageAdded();
     }
 
+    public void listerForInboxDataChange() {
+
+        DatabaseReference inboxRef = ref.child("user_inbox").child(user.getUid());
+        inboxRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+
+                    realm.executeTransaction(realm1 -> {
+                        final Map<String, Object> inboxMap = (Map<String, Object>) snapshot.getValue();
+
+                        for (String child : inboxMap.keySet()) {
+                            Object childObject = inboxMap.get(child);
+                            Map<String, Object> childObjectMap = (Map<String, Object>) childObject;
+
+
+                            if (childObjectMap != null) {
+                                Log.d(TAG, "inboxmessage: " + childObjectMap.get("chatID") + " " + childObjectMap.get("message_content") + " " + childObjectMap.get("senderID"));
+
+                                InboxData inboxData = new InboxData();
+                                inboxData.setChatID((String) childObjectMap.get("chatID"));
+                                inboxData.setMessage((String) childObjectMap.get("message_content"));
+                                inboxData.setSenderID((String) childObjectMap.get("senderID"));
+                                inboxData.setMessageID(child);
+                                realm1.copyToRealmOrUpdate(inboxData);
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+    }
+
 
     public void addUserToChats(String userName, String contactID) {
         DatabaseReference databaseReference = database.getReference("user_specific_info").child(contactID);
@@ -328,17 +374,29 @@ public class FireBaseDBHelper {
                 final Object picture = snapshot.getValue();
                 final Map<String, Object> picMap = (Map<String, Object>) picture;
 
+//                UserData userData = realm.where(UserData.class).equalTo("userID", user.getUid()).findFirst();
+
                 Log.d(TAG, "onData change" + picMap.get("profile_picture"));
                 String pictureUrl = (String) picMap.get("profile_picture");
 
+                String chatID = UUID.randomUUID().toString();
+
                 DatabaseReference userRef = database.getReference("user_chats")
                         .child(user.getUid())
-                        .child(UUID.randomUUID().toString());
+                        .child(chatID);
                 Map<String, Object> userChatMap = new HashMap<>();
                 userChatMap.put("receiver", userName);
                 userChatMap.put("receiverID", contactID);
                 userChatMap.put("user_profile_pic", pictureUrl);
                 userRef.updateChildren(userChatMap);
+
+                DatabaseReference chatRef = database.getReference("chats")
+                        .child(chatID)
+                        .child("users");
+
+                Map<String, Object> chatMap = new HashMap<>();
+                chatMap.put(user.getUid(), user.getDisplayName());
+                chatRef.updateChildren(chatMap);
             }
 
             @Override

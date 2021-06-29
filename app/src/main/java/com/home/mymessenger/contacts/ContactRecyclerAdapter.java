@@ -73,7 +73,6 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
         private final View.OnClickListener onRowClick = view -> {
             FragmentManager fragmentManager = ((FragmentActivity) view.getContext()).getSupportFragmentManager();
 
-            Bundle bundle;
             String userName = contactName.getText().toString();
             String phoneNumber = contactPhoneNumber.getText().toString();
 
