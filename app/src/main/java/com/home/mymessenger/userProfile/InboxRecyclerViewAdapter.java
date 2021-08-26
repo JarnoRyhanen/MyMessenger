@@ -71,6 +71,7 @@ public class InboxRecyclerViewAdapter extends RecyclerView.Adapter<InboxRecycler
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: chatting accepted with user " + inboxData.getSenderID());
+                Log.d(TAG, "onClick: chat id:   " + inboxData.getChatID());
                 updateCancelAcceptStatus(inboxData.getMessageID(), "accept");
 
                 DatabaseReference userChatRef = ref.child("user_chats").child(user.getUid()).child(inboxData.getChatID());
@@ -79,6 +80,14 @@ public class InboxRecyclerViewAdapter extends RecyclerView.Adapter<InboxRecycler
                 userChatMap.put("receiver", inboxData.getSenderName());
                 userChatMap.put("user_profile_pic", inboxData.getSenderProfilePic());
                 userChatRef.updateChildren(userChatMap);
+
+                DatabaseReference chatRef = database.getReference("chats")
+                        .child(inboxData.getChatID())
+                        .child("users");
+
+                Map<String, Object> chatMap = new HashMap<>();
+                chatMap.put(user.getUid(), user.getDisplayName());
+                chatRef.updateChildren(chatMap);
 
                 deleteItem(position);
                 deleteItemFromFireBase(inboxData.getMessageID());

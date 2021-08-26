@@ -169,7 +169,7 @@ public class FireBaseDBHelper {
                         updateUserChats(changedData);
 //                    Log.d(TAG, "onDataChange " + changedData);
                     } else {
-                        Log.d(TAG, "onDataChange:   NO INTERNET");
+//                        Log.d(TAG, "onDataChange:   NO INTERNET");
                     }
                 }
 
@@ -365,7 +365,7 @@ public class FireBaseDBHelper {
 
     }
 
-    public void addUserToChats(String userName, String contactID) {
+    public void addUserToChats(String userName, String contactID, String chatID) {
         DatabaseReference databaseReference = database.getReference("user_specific_info").child(contactID);
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -377,8 +377,6 @@ public class FireBaseDBHelper {
 
                 Log.d(TAG, "onData change" + picMap.get("profile_picture"));
                 String pictureUrl = (String) picMap.get("profile_picture");
-
-                String chatID = UUID.randomUUID().toString();
 
                 DatabaseReference userRef = database.getReference("user_chats")
                         .child(user.getUid())
