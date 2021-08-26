@@ -121,7 +121,7 @@ public class UserProfileFragment extends Fragment {
 
         adapter = new InboxRecyclerViewAdapter(getActivity(), inboxDataList);
         inboxRecycler.setAdapter(adapter);
-
+        adapter.notifyDataSetChanged();
     }
 
     private void loadUserStatusAndUserName() {

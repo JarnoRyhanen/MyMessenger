@@ -48,15 +48,14 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
     private TextView userNameTextView;
     private TextView userStatusTextView;
 
-    private Realm realm = RealmHelper.getInstance().getRealm();
+    private final Realm realm = RealmHelper.getInstance().getRealm();
     private ChatData chatData;
 
     private String chatID;
 
     private EditText sendMessageEditText;
-    private ImageButton sendMessageImageButton;
 
-    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
     private RecyclerView privateMessageRecycler;
     private PrivateMessageRecyclerAdapter adapter;
@@ -79,7 +78,7 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         userStatusTextView = findViewById(R.id.toolbar_user_status_text_view);
         shapeableImageView = findViewById(R.id.toolbar_shapeable_image_view);
         sendMessageEditText = findViewById(R.id.send_message_edit_text);
-        sendMessageImageButton = findViewById(R.id.send_message_image_button);
+        ImageButton sendMessageImageButton = findViewById(R.id.send_message_image_button);
 
         privateMessageRecycler = findViewById(R.id.private_message_screen_recycler_view);
         privateMessageRecycler.setHasFixedSize(true);
@@ -101,12 +100,11 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         setToolBar();
         addChatToReceiver(chatData.getReceiverID());
         isRan = true;
+        Log.d(TAG, "onCreate: " + isRan);
     }
 
     private void addChatToReceiver(String receiverID) {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-
-
         reference.child("user_chats").child(receiverID).child(chatID);
     }
 
@@ -171,17 +169,18 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
     private void loadChat() {
         chatID = getIntent().getStringExtra(IntentKeys.CHAT_ID);
         chatData = realm.where(ChatData.class).equalTo("chatID", chatID).findFirst();
-
         userNameTextView.setText(chatData.getReceiver());
         UserData userData = realm.where(UserData.class).equalTo("userID", chatData.getReceiverID()).findFirst();
-        userStatusTextView.setText(userData.getUserStatus());
-        Picasso.get().load(chatData.getProfilePicture()).fit().centerInside().into(shapeableImageView);
+        if (userData != null) {
+            userStatusTextView.setText(userData.getUserStatus());
+            Picasso.get().load(chatData.getProfilePicture()).fit().centerInside().into(shapeableImageView);
+        }
         if (!isRan) {
             Log.d(TAG, "loadChat: " + isRan);
             startFireBaseListening();
         }
-    }
 
+    }
     private void startFireBaseListening() {
         FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
         helper.setListener(PrivateMessageScreen.this);

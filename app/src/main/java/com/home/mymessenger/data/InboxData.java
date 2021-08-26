@@ -9,7 +9,10 @@ public class InboxData extends RealmObject {
     private String messageID;
     private String chatID;
     private String message;
+    private String cancelAcceptStatus;
     private String senderID;
+    private String senderName;
+    private String senderProfilePic;
 
     public String getMessageID() {
         return messageID;
@@ -41,5 +44,29 @@ public class InboxData extends RealmObject {
 
     public void setSenderID(String senderID) {
         this.senderID = senderID;
+    }
+
+    public String getCancelAcceptStatus() {
+        return cancelAcceptStatus;
+    }
+
+    public void setCancelAcceptStatus(String cancelAcceptStatus) {
+        this.cancelAcceptStatus = cancelAcceptStatus;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
+    public String getSenderProfilePic() {
+        return senderProfilePic;
+    }
+
+    public void setSenderProfilePic(String senderProfilePic) {
+        this.senderProfilePic = senderProfilePic;
     }
 }

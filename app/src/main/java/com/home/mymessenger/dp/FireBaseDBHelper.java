@@ -327,20 +327,17 @@ public class FireBaseDBHelper {
     }
 
     public void listerForInboxDataChange() {
-
         DatabaseReference inboxRef = ref.child("user_inbox").child(user.getUid());
         inboxRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-
                     realm.executeTransaction(realm1 -> {
                         final Map<String, Object> inboxMap = (Map<String, Object>) snapshot.getValue();
 
                         for (String child : inboxMap.keySet()) {
                             Object childObject = inboxMap.get(child);
                             Map<String, Object> childObjectMap = (Map<String, Object>) childObject;
-
 
                             if (childObjectMap != null) {
                                 Log.d(TAG, "inboxmessage: " + childObjectMap.get("chatID") + " " + childObjectMap.get("message_content") + " " + childObjectMap.get("senderID"));
@@ -349,6 +346,9 @@ public class FireBaseDBHelper {
                                 inboxData.setChatID((String) childObjectMap.get("chatID"));
                                 inboxData.setMessage((String) childObjectMap.get("message_content"));
                                 inboxData.setSenderID((String) childObjectMap.get("senderID"));
+                                inboxData.setCancelAcceptStatus((String) childObjectMap.get("cancelAcceptStatus"));
+                                inboxData.setSenderName((String) childObjectMap.get("sender_name"));
+                                inboxData.setSenderProfilePic((String) childObjectMap.get("sender_profile_pic"));
                                 inboxData.setMessageID(child);
                                 realm1.copyToRealmOrUpdate(inboxData);
                             }
@@ -364,7 +364,6 @@ public class FireBaseDBHelper {
         });
 
     }
-
 
     public void addUserToChats(String userName, String contactID) {
         DatabaseReference databaseReference = database.getReference("user_specific_info").child(contactID);

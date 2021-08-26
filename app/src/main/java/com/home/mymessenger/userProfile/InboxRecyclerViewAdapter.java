@@ -11,16 +11,31 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.home.mymessenger.R;
 import com.home.mymessenger.data.InboxData;
+import com.home.mymessenger.dp.RealmHelper;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import io.realm.Realm;
 
 public class InboxRecyclerViewAdapter extends RecyclerView.Adapter<InboxRecyclerViewAdapter.InboxViewHolder> {
 
     private static final String TAG = "InboxRecyclerViewAdapte";
     private final Context context;
     private final List<InboxData> itemList;
+
+    private final Realm realm = RealmHelper.getInstance().getRealm();
+
+    private final FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private final DatabaseReference ref = database.getReference();
+    private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
     public InboxRecyclerViewAdapter(Context context, List<InboxData> itemList) {
         this.context = context;
@@ -44,6 +59,11 @@ public class InboxRecyclerViewAdapter extends RecyclerView.Adapter<InboxRecycler
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: cancel pressed on " + inboxData.getMessage());
+
+                updateCancelAcceptStatus(inboxData.getMessageID(), "cancel");
+                deleteItem(position);
+                deleteItemFromFireBase(inboxData.getMessageID());
+                deleteItemFromRealm(inboxData.getMessageID());
             }
         });
 
@@ -51,9 +71,45 @@ public class InboxRecyclerViewAdapter extends RecyclerView.Adapter<InboxRecycler
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: chatting accepted with user " + inboxData.getSenderID());
+                updateCancelAcceptStatus(inboxData.getMessageID(), "accept");
+
+                DatabaseReference userChatRef = ref.child("user_chats").child(user.getUid()).child(inboxData.getChatID());
+                Map<String, Object> userChatMap = new HashMap<>();
+                userChatMap.put("receiverID", inboxData.getSenderID());
+                userChatMap.put("receiver", inboxData.getSenderName());
+                userChatMap.put("user_profile_pic", inboxData.getSenderProfilePic());
+                userChatRef.updateChildren(userChatMap);
+
+                deleteItem(position);
+                deleteItemFromFireBase(inboxData.getMessageID());
+                deleteItemFromRealm(inboxData.getMessageID());
             }
         });
 
+    }
+
+    private void deleteItemFromRealm(String messageID) {
+        realm.executeTransaction(realm1 -> {
+            InboxData inboxData = realm1.where(InboxData.class).equalTo("messageID", messageID).findFirst();
+            inboxData.deleteFromRealm();
+        });
+    }
+
+    private void deleteItemFromFireBase(String messageID) {
+        DatabaseReference inboxRef = ref.child("user_inbox").child(user.getUid()).child(messageID);
+        inboxRef.removeValue();
+    }
+
+    private void deleteItem(int position) {
+        itemList.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    private void updateCancelAcceptStatus(String... strings) {
+        DatabaseReference inboxRef = ref.child("user_inbox").child(user.getUid()).child(strings[0]);
+        Map<String, Object> inboxMap = new HashMap<>();
+        inboxMap.put("cancelAcceptStatus", strings[1]);
+        inboxRef.updateChildren(inboxMap);
     }
 
     @Override
