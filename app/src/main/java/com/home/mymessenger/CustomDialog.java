@@ -94,7 +94,6 @@ public class CustomDialog extends AppCompatDialogFragment {
         inboxMap.put("senderID", user.getUid());
         inboxMap.put("message_content", String.format("Do you want to accept chatting offer from %s", user.getDisplayName()));
         inboxMap.put("chatID", chatID);
-        inboxMap.put("cancelAcceptStatus", "neutral");
         inboxMap.put("sender_name", user.getDisplayName());
         inboxMap.put("sender_profile_pic", userData.getUserProfilePicture());
 

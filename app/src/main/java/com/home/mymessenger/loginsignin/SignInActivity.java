@@ -107,16 +107,11 @@ public class SignInActivity extends AppCompatActivity {
         FireBaseDBHelper.getInstance().listerForUserChatChange();
         FirebaseUser user = auth.getCurrentUser();
 
-        UserData userData = new UserData();
-        userData.setUserName(userName);
-        userData.setUserPhoneNumber(phoneNumber);
-
         Map<String, Object> userObjectMap = new HashMap<>();
         userObjectMap.put("user_name", userName);
         userObjectMap.put("phone_number", phoneNumber);
-        userObjectMap.put("current_status", "test");
+        userObjectMap.put("current_status", "no status");
         userObjectMap.put("activity_status", "offline");
-
 
         DatabaseReference userRef = ref.child("users");
         Map<String, Object> userMap = new HashMap<>();
@@ -185,11 +180,14 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void startMainActivity() {
-        FireBaseDBHelper.getInstance().setListener(() -> {
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
-            finish();
-        });
-        FireBaseDBHelper.getInstance().listerForUserChatChange();
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
+//        FireBaseDBHelper.getInstance().setListener(() -> {
+//            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+//            finish();
+//        });
+//        FireBaseDBHelper.getInstance().listerForUserChatChange();
     }
 
 

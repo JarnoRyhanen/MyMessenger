@@ -35,6 +35,7 @@ import com.google.firebase.storage.StorageReference;
 import com.home.mymessenger.R;
 import com.home.mymessenger.data.InboxData;
 import com.home.mymessenger.data.UserData;
+import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
 import com.home.mymessenger.loginsignin.LogInActivity;
 import com.squareup.picasso.Picasso;
@@ -67,6 +68,7 @@ public class UserProfileFragment extends Fragment {
 
     private Uri imageUri;
 
+    private final FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
     private final FirebaseDatabase database = FirebaseDatabase.getInstance();
     private final DatabaseReference ref = database.getReference();
 
@@ -102,6 +104,8 @@ public class UserProfileFragment extends Fragment {
         inboxRecycler.setLayoutManager(linearLayoutManager);
 
         signOutButton = view.findViewById(R.id.sign_out_button);
+
+        helper.listerForInboxDataChange();
 
         setOnClickListeners();
         if (userData != null) {

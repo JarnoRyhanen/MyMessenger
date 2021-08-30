@@ -23,7 +23,6 @@ import com.home.mymessenger.data.UserData;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -327,42 +326,42 @@ public class FireBaseDBHelper {
     }
 
     public void listerForInboxDataChange() {
-        DatabaseReference inboxRef = ref.child("user_inbox").child(user.getUid());
-        inboxRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    realm.executeTransaction(realm1 -> {
-                        final Map<String, Object> inboxMap = (Map<String, Object>) snapshot.getValue();
+        if (user != null) {
+            DatabaseReference inboxRef = ref.child("user_inbox").child(user.getUid());
+            inboxRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        realm.executeTransaction(realm1 -> {
+                            final Map<String, Object> inboxMap = (Map<String, Object>) snapshot.getValue();
 
-                        for (String child : inboxMap.keySet()) {
-                            Object childObject = inboxMap.get(child);
-                            Map<String, Object> childObjectMap = (Map<String, Object>) childObject;
+                            for (String child : inboxMap.keySet()) {
+                                Object childObject = inboxMap.get(child);
+                                Map<String, Object> childObjectMap = (Map<String, Object>) childObject;
 
-                            if (childObjectMap != null) {
-                                Log.d(TAG, "inboxmessage: " + childObjectMap.get("chatID") + " " + childObjectMap.get("message_content") + " " + childObjectMap.get("senderID"));
+                                if (childObjectMap != null) {
+                                    Log.d(TAG, "inboxmessage: " + childObjectMap.get("chatID") + " " + childObjectMap.get("message_content") + " " + childObjectMap.get("senderID"));
 
-                                InboxData inboxData = new InboxData();
-                                inboxData.setChatID((String) childObjectMap.get("chatID"));
-                                inboxData.setMessage((String) childObjectMap.get("message_content"));
-                                inboxData.setSenderID((String) childObjectMap.get("senderID"));
-                                inboxData.setCancelAcceptStatus((String) childObjectMap.get("cancelAcceptStatus"));
-                                inboxData.setSenderName((String) childObjectMap.get("sender_name"));
-                                inboxData.setSenderProfilePic((String) childObjectMap.get("sender_profile_pic"));
-                                inboxData.setMessageID(child);
-                                realm1.copyToRealmOrUpdate(inboxData);
+                                    InboxData inboxData = new InboxData();
+                                    inboxData.setChatID((String) childObjectMap.get("chatID"));
+                                    inboxData.setMessage((String) childObjectMap.get("message_content"));
+                                    inboxData.setSenderID((String) childObjectMap.get("senderID"));
+                                    inboxData.setSenderName((String) childObjectMap.get("sender_name"));
+                                    inboxData.setSenderProfilePic((String) childObjectMap.get("sender_profile_pic"));
+                                    inboxData.setMessageID(child);
+                                    realm1.copyToRealmOrUpdate(inboxData);
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
 
-            }
-        });
-
+                }
+            });
+        }
     }
 
     public void addUserToChats(String userName, String contactID, String chatID) {

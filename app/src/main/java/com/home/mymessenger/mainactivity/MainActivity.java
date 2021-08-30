@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         Log.d(TAG, "onCreate: internet connection: " + isNetworkConnected());
-
+        Log.d(TAG, "onCreate: USER ID   " + user.getUid());
 //        button = findViewById(R.id.soita);
 //        editText = findViewById(R.id.numero);
 

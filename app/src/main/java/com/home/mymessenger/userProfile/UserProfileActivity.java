@@ -24,8 +24,6 @@ public class UserProfileActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_profile_activity);
 
-            helper.listerForInboxDataChange();
-
             userProfileFragment = new UserProfileFragment();
             openFragment();
     }

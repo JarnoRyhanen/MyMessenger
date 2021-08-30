@@ -1,4 +1,4 @@
-package com.home.mymessenger.userProfile;
+ package com.home.mymessenger.userProfile;
 
 import android.content.Context;
 import android.util.Log;
@@ -60,7 +60,6 @@ public class InboxRecyclerViewAdapter extends RecyclerView.Adapter<InboxRecycler
             public void onClick(View v) {
                 Log.d(TAG, "onClick: cancel pressed on " + inboxData.getMessage());
 
-                updateCancelAcceptStatus(inboxData.getMessageID(), "cancel");
                 deleteItem(position);
                 deleteItemFromFireBase(inboxData.getMessageID());
                 deleteItemFromRealm(inboxData.getMessageID());
@@ -72,7 +71,6 @@ public class InboxRecyclerViewAdapter extends RecyclerView.Adapter<InboxRecycler
             public void onClick(View v) {
                 Log.d(TAG, "onClick: chatting accepted with user " + inboxData.getSenderID());
                 Log.d(TAG, "onClick: chat id:   " + inboxData.getChatID());
-                updateCancelAcceptStatus(inboxData.getMessageID(), "accept");
 
                 DatabaseReference userChatRef = ref.child("user_chats").child(user.getUid()).child(inboxData.getChatID());
                 Map<String, Object> userChatMap = new HashMap<>();
@@ -92,9 +90,17 @@ public class InboxRecyclerViewAdapter extends RecyclerView.Adapter<InboxRecycler
                 deleteItem(position);
                 deleteItemFromFireBase(inboxData.getMessageID());
                 deleteItemFromRealm(inboxData.getMessageID());
+                addToContacts(inboxData.getSenderID(), inboxData.getSenderName());
             }
         });
 
+    }
+
+    private void addToContacts(String senderID, String senderName) {
+        DatabaseReference userRef = ref.child("user_specific_info").child(user.getUid()).child("contacts");
+        Map<String, Object> contactsMap = new HashMap<>();
+        contactsMap.put(senderID, senderName);
+        userRef.updateChildren(contactsMap);
     }
 
     private void deleteItemFromRealm(String messageID) {
@@ -112,13 +118,6 @@ public class InboxRecyclerViewAdapter extends RecyclerView.Adapter<InboxRecycler
     private void deleteItem(int position) {
         itemList.remove(position);
         notifyItemRemoved(position);
-    }
-
-    private void updateCancelAcceptStatus(String... strings) {
-        DatabaseReference inboxRef = ref.child("user_inbox").child(user.getUid()).child(strings[0]);
-        Map<String, Object> inboxMap = new HashMap<>();
-        inboxMap.put("cancelAcceptStatus", strings[1]);
-        inboxRef.updateChildren(inboxMap);
     }
 
     @Override

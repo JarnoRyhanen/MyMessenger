@@ -111,10 +111,13 @@ public class LogInActivity extends AppCompatActivity {
     }
 
     private void startMainActivity() {
-        FireBaseDBHelper.getInstance().setListener(() -> {
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
-            finish();
-        });
+//        FireBaseDBHelper.getInstance().setListener(() -> {
+//            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+//            finish();
+//        });
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
         FireBaseDBHelper.getInstance().listerForUserChatChange();
     }
 }
