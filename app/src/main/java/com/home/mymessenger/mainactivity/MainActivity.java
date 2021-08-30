@@ -183,33 +183,7 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
         Log.d(TAG, "onResume: " + isRan);
 //        updateUserActivityStatus("online");
     }
-    //    private void callPhone() {
-//        String number = editText.getText().toString();
-//        if (number.trim().length() > 0) {
-//            if (ContextCompat.checkSelfPermission(MainActivity.this,
-//                    Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-//                ActivityCompat.requestPermissions(MainActivity.this,
-//                        new String[]{Manifest.permission.CALL_PHONE}, REQUEST_CALL);
-//            } else {
-//                String dial = "tel:" + number;
-//                startActivity(new Intent(Intent.ACTION_CALL, Uri.parse(dial)));
-//            }
-//        } else {
-//            Toast.makeText(MainActivity.this, "Enter Phone Number", Toast.LENGTH_SHORT).show();
-//        }
-//    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (requestCode == REQUEST_CALL) {
-//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                callPhone();
-//            } else {
-//                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
-//            }
-//        }
-    }
 
     @Override
     public void onDatabaseUpdate() {

@@ -1,5 +1,9 @@
 package com.home.mymessenger;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,10 +13,14 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,6 +34,7 @@ import com.home.mymessenger.data.MessageData;
 import com.home.mymessenger.data.UserData;
 import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
+import com.home.mymessenger.mainactivity.MainActivity;
 import com.squareup.picasso.Picasso;
 
 import java.lang.ref.WeakReference;
@@ -44,9 +53,12 @@ import io.realm.Sort;
 public class PrivateMessageScreen extends AppCompatActivity implements FireBaseDBHelper.onDatabaseUpdateListener {
 
     private static final String TAG = "PrivateMessageScreen";
+    private static final int REQUEST_CALL = 1;
     private ShapeableImageView shapeableImageView;
     private TextView userNameTextView;
     private TextView userStatusTextView;
+
+    private UserData userData;
 
     private final Realm realm = RealmHelper.getInstance().getRealm();
     private ChatData chatData;
@@ -170,10 +182,11 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         chatID = getIntent().getStringExtra(IntentKeys.CHAT_ID);
         chatData = realm.where(ChatData.class).equalTo("chatID", chatID).findFirst();
         userNameTextView.setText(chatData.getReceiver());
-        UserData userData = realm.where(UserData.class).equalTo("userID", chatData.getReceiverID()).findFirst();
+        userData = realm.where(UserData.class).equalTo("userID", chatData.getReceiverID()).findFirst();
         if (userData != null) {
+            Log.d(TAG, "loadChat: WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW");
             userStatusTextView.setText(userData.getUserStatus());
-            Picasso.get().load(chatData.getProfilePicture()).fit().centerInside().into(shapeableImageView);
+            Picasso.get().load(userData.getUserProfilePicture()).fit().centerInside().into(shapeableImageView);
         }
         if (!isRan) {
             Log.d(TAG, "loadChat: " + isRan);
@@ -189,7 +202,7 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.private_message_screen, menu);
         return true;
     }
 
@@ -199,7 +212,11 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
 
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_phone_call) {
+//            callPhone();
+            return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -208,6 +225,35 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void callPhone() {
+        String number = userData.getUserPhoneNumber();
+
+        if (number.trim().length() > 0) {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.CALL_PHONE}, REQUEST_CALL);
+            } else {
+                String dial = "tel:" + number;
+                startActivity(new Intent(Intent.ACTION_CALL, Uri.parse(dial)));
+            }
+        } else {
+            Toast.makeText(this, "Enter Phone Number", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CALL) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                callPhone();
+            } else {
+                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private static class PrivateMessageAsyncTask extends AsyncTask<String, Void, List<MessageData>> {
