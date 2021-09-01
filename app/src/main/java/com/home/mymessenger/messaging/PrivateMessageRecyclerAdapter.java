@@ -1,9 +1,11 @@
-package com.home.mymessenger;
+package com.home.mymessenger.messaging;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -11,12 +13,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.home.mymessenger.R;
 import com.home.mymessenger.data.MessageData;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 public class PrivateMessageRecyclerAdapter extends RecyclerView.Adapter<PrivateMessageRecyclerAdapter.PrivateMessageViewHolder> {
-
+    private static final String TAG = "PrivateMessageRecyclerA";
     public static final int MESSAGE_TYPE_LEFT = 0;
     public static final int MESSAGE_TYPE_RIGHT = 1;
 
@@ -51,6 +55,7 @@ public class PrivateMessageRecyclerAdapter extends RecyclerView.Adapter<PrivateM
         holder.messageContentView.setText(messageData.getMessageContent());
         holder.messageDateView.setText(messageData.getDate());
 
+        Picasso.get().load(messageData.getImage()).into(holder.messageImageView);
     }
 
     @Override
@@ -71,13 +76,14 @@ public class PrivateMessageRecyclerAdapter extends RecyclerView.Adapter<PrivateM
 
         public TextView messageContentView;
         public TextView messageDateView;
+        public ImageView messageImageView;
 
         public PrivateMessageViewHolder(@NonNull View itemView) {
             super(itemView);
 
             messageContentView = itemView.findViewById(R.id.private_message_content);
             messageDateView = itemView.findViewById(R.id.private_message_date);
-
+            messageImageView = itemView.findViewById(R.id.private_message_image);
         }
     }
 }

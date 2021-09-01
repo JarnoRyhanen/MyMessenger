@@ -261,6 +261,7 @@ public class FireBaseDBHelper {
                         messageData.setSender((String) messageMap.get("sender"));
                         messageData.setDate((String) messageMap.get("date"));
                         messageData.setReceiver((String) messageMap.get("receiver"));
+                        messageData.setImage((String) messageMap.get("message_image"));
 
                         messageDataRealmList.add(realm.copyToRealmOrUpdate(messageData));
                         chatData.setMessages(messageDataRealmList);

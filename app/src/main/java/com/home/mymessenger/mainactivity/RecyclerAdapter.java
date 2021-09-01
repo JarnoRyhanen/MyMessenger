@@ -2,7 +2,6 @@ package com.home.mymessenger.mainactivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +20,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.home.mymessenger.IntentKeys;
-import com.home.mymessenger.PrivateMessageScreen;
+import com.home.mymessenger.messaging.PrivateMessageScreen;
 import com.home.mymessenger.R;
 import com.home.mymessenger.data.ChatData;
 import com.home.mymessenger.data.UserData;

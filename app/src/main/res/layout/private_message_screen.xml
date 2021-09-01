@@ -19,35 +19,65 @@
         android:layout_above="@id/text_layout"
         />
 
-    <RelativeLayout
+<!--    <ImageView-->
+<!--        android:id="@+id/message_image_view"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="300dp"-->
+<!--        android:layout_above="@id/text_layout"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        android:visibility="gone"-->
+<!--        />-->
+
+    <LinearLayout
         android:id="@+id/text_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/white"
+        android:background="@drawable/message_input_background"
         android:padding="8dp"
+        android:backgroundTint="@color/white"
+
+        android:orientation="horizontal"
         >
 
         <EditText
+            android:layout_width="0dp"
+            android:layout_gravity="center"
             android:id="@+id/send_message_edit_text"
-            android:layout_width="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/send_message_image_button"
             android:background="@color/fui_transparent"
             android:hint="Text"
             />
 
         <ImageButton
-            android:id="@+id/send_message_image_button"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentEnd="true"
-            android:background="@drawable/ic_baseline_send_24"
-            android:backgroundTint="@color/gray"
+            android:id="@+id/voice"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:background="@drawable/ic_baseline_keyboard_voice_24"
             />
 
-    </RelativeLayout>
+        <ImageButton
+            android:id="@+id/add"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:background="@drawable/ic_baseline_add_24"
+            />
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:id="@+id/send_message_image_button"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/ic_baseline_send_24"
+            android:backgroundTint="@color/gray"
+            android:layout_marginEnd="8dp"
+            />
+
+    </LinearLayout>
 
 
 </RelativeLayout>

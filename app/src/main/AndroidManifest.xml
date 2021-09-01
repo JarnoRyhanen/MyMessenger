@@ -26,10 +26,15 @@
             />
 
         <activity
-            android:name=".PrivateMessageScreen"
+            android:name=".messaging.PrivateMessageScreen"
             android:theme="@style/Theme.MyMessenger.NoActionBar"
             android:parentActivityName=".mainactivity.MainActivity"
             />
+        <activity android:name=".messaging.EditImageActivity"
+            android:theme="@style/Theme.MyMessenger.NoActionBar"
+            android:windowSoftInputMode="adjustResize"
+            />
+
         <activity android:name=".SplashScreenActivity"
             android:theme="@style/SplashScreenTheme">
             <intent-filter>

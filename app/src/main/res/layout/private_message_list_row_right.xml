@@ -17,7 +17,17 @@
         android:textColor="@color/white"
         >
 
+        <ImageView
+            android:id="@+id/private_message_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            tools:src="@drawable/download"
+            />
+
         <TextView
+            android:layout_below="@id/private_message_image"
             android:id="@+id/private_message_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -26,6 +36,7 @@
             android:textColor="@color/white"
             android:textSize="16sp"
             tools:text="text"
+            android:linksClickable="true"
             />
 
         <TextView
