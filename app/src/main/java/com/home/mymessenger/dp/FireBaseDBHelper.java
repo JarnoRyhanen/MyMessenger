@@ -244,36 +244,38 @@ public class FireBaseDBHelper {
             realm.beginTransaction();
             Object messagesObject = chatContentMap.get("messages");
             final Map<String, Object> messagesMap = (Map<String, Object>) messagesObject;
+
             if (messagesMap != null) {
                 RealmList<MessageData> messageDataRealmList = new RealmList<>();
                 for (String messageID : messagesMap.keySet()) {
                     Object messageObject = messagesMap.get(messageID);
                     final Map<String, Object> messageMap = (Map<String, Object>) messageObject;
                     if (messageMap != null) {
-//                            Log.d(TAG, "loadChatContent: message content " + messageMap.get("message_content"));
-//                            Log.d(TAG, "loadChatContent: messageid " + messageID);
-//                            Log.d(TAG, "loadChatContent: sender " + messageMap.get("sender"));
-//                            Log.d(TAG, "loadChatContent: date " + messageMap.get("date"));
-//                            Log.d(TAG, "loadChatContent: " + messageID);
                         MessageData messageData = new MessageData();
                         messageData.setMessageID(messageID);
                         messageData.setMessageContent((String) messageMap.get("message_content"));
                         messageData.setSender((String) messageMap.get("sender"));
                         messageData.setDate((String) messageMap.get("date"));
                         messageData.setReceiver((String) messageMap.get("receiver"));
-                        messageData.setImage((String) messageMap.get("message_image"));
 
+                        if (!messageMap.get("message_image").equals("null")) {
+                            messageData.setImage((String) messageMap.get("message_image"));
+                        }
+                        if (!messageMap.get("message_video").equals("null")) {
+                            messageData.setVideo((String) messageMap.get("message_video"));
+                        }
                         messageDataRealmList.add(realm.copyToRealmOrUpdate(messageData));
-                        chatData.setMessages(messageDataRealmList);
-
-                        realm.copyToRealmOrUpdate(chatData);
                     }
+                }
+                if (chatData != null) {
+                    chatData.setMessages(messageDataRealmList);
+                    realm.copyToRealmOrUpdate(chatData);
                 }
             }
             realm.commitTransaction();
-            if (listener != null) {
+            if (onMessageAddedListener != null) {
                 Log.d(TAG, "LOAD CHAT CONTENT LISTENER CALLED: ");
-                listener.onDatabaseUpdate();
+                onMessageAddedListener.onMessageAdded();
             }
         }
     }
@@ -491,4 +493,16 @@ public class FireBaseDBHelper {
             }
         });
     }
+
+    private onMessageAddedListener onMessageAddedListener;
+
+    public void setOnMessageAddedListener(onMessageAddedListener listener) {
+        this.onMessageAddedListener = listener;
+    }
+
+    public interface onMessageAddedListener {
+        void onMessageAdded();
+    }
+
+
 }

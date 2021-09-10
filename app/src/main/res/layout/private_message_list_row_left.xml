@@ -25,6 +25,13 @@
             android:scaleType="fitCenter"
             tools:src="@drawable/download"
             />
+        <VideoView
+            android:visibility="gone"
+            android:id="@+id/private_message_video"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:layout_above="@id/private_message_content"
+            />
         <TextView
             android:layout_below="@+id/private_message_image"
             android:id="@+id/private_message_content"

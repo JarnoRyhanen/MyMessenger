@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -42,7 +41,6 @@ import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
 import com.squareup.picasso.Picasso;
 
-import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,11 +53,10 @@ import java.util.Map;
 import io.realm.Realm;
 import io.realm.Sort;
 
-public class PrivateMessageScreen extends AppCompatActivity implements FireBaseDBHelper.onDatabaseUpdateListener {
+public class PrivateMessageScreen extends AppCompatActivity implements FireBaseDBHelper.onMessageAddedListener {
 
     private static final String TAG = "PrivateMessageScreen";
     private static final int REQUEST_CALL = 1;
-    private static final int PICK_IMAGE = 2;
 
     private ActivityResultLauncher<Intent> activityResultLauncher;
 
@@ -67,6 +64,7 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
     private TextView userNameTextView;
     private TextView userStatusTextView;
     private EditText sendMessageEditText;
+
 
     private ImageButton sendMessageImageButton;
     private ImageButton addIcon;
@@ -107,14 +105,15 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
             @Override
             public void onActivityResult(ActivityResult result) {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    Uri imageUri = result.getData().getData();
-                    Log.d(TAG, "onActivityResult: " + imageUri.toString());
-
-                    Intent intent = new Intent(PrivateMessageScreen.this, EditImageActivity.class);
-                    intent.putExtra("imageUri", imageUri.toString());
-                    intent.putExtra("chatID", chatID);
-                    intent.putExtra("receiverID", chatData.getReceiverID());
-                    startActivity(intent);
+                    Uri uri = result.getData().getData();
+                    Log.d(TAG, "onActivityResult: " + uri.toString());
+                    if (uri.toString().contains("video")) {
+//                        Intent intent = new Intent(PrivateMessageScreen.this, EditVideoActivity.class);
+//                        setIntentExtras(intent, uri);
+                    } else {
+                        Intent intent = new Intent(PrivateMessageScreen.this, EditImageActivity.class);
+                        setIntentExtras(intent, uri);
+                    }
                 }
             }
         });
@@ -125,17 +124,26 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         Log.d(TAG, "onCreate: " + isRan);
     }
 
+    private void setIntentExtras(Intent intent, Uri uri) {
+        intent.putExtra("uri", uri.toString());
+        intent.putExtra("chatID", chatID);
+        intent.putExtra("receiverID", chatData.getReceiverID());
+        startActivity(intent);
+    }
+
+
     private final View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if (v == addIcon) {
+
                 Log.d(TAG, "onClick: add icon pressed");
                 Intent imageGalleryIntent = new Intent(Intent.ACTION_PICK);
                 imageGalleryIntent.setType("video/*, image/*");
                 if (imageGalleryIntent.resolveActivity(getPackageManager()) != null) {
-//                    openImageGallery(imageGalleryIntent);
                     activityResultLauncher.launch(imageGalleryIntent);
                 }
+
             } else if (v == voiceMessageIcon) {
                 Log.d(TAG, "onClick: voice pressed");
             } else if (v == sendMessageImageButton) {
@@ -147,16 +155,6 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
             }
         }
     };
-
-    private void openImageGallery(Intent intent) {
-        activityResultLauncher.launch(intent);
-
-
-    }
-
-    private void uploadImage() {
-
-    }
 
     private void setOnClickListeners() {
         addIcon.setOnClickListener(onClickListener);
@@ -206,6 +204,7 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         messageMap.put("receiver", receiver);
         messageMap.put("date", date);
         messageMap.put("message_image", messageImage);
+        messageMap.put("message_video", "null");
         reference.child("chats").child(chatID).child("messages").push().setValue(messageMap);
 
         updateLatestMessageAndDate(messageContent, date);
@@ -221,20 +220,18 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         reference.child("chats").child(chatID).child("latest_message_and_date").updateChildren(latestMessageAndDateMap);
     }
 
-    private void getMessages(String contactID) {
+    private void getMessages() {
         messageDataList = new ArrayList<>();
         messageDataList.clear();
         for (MessageData message : chatData.getMessages().sort("messageID", Sort.ASCENDING)) {
             if (message != null) {
-                if (message.getReceiver().equals(user.getUid()) && message.getSender().equals(contactID) ||
-                        message.getReceiver().equals(contactID) && message.getSender().equals(user.getUid())) {
-                    messageDataList.add(message);
-                    Log.d(TAG, "getMessages: messages added to the list: " + message.getMessageContent() + "      " + message);
-                }
+                Log.d(TAG, "getMessages: messages added to the list: " + message.getMessageContent() + "      " + message);
+                messageDataList.add(message);
             }
-            adapter = new PrivateMessageRecyclerAdapter(this, messageDataList);
-            privateMessageRecycler.setAdapter(adapter);
         }
+        adapter = new PrivateMessageRecyclerAdapter(this, messageDataList);
+        privateMessageRecycler.setAdapter(adapter);
+//        adapter.notifyDataSetChanged();
     }
 
     private void loadChat() {
@@ -254,17 +251,9 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
 
     }
 
-    @Override
-    public void onDatabaseUpdate() {
-        Log.d(TAG, "onDatabaseUpdate: load chat: " + chatID);
-        Log.d(TAG, "onDatabaseUpdate: " + chatData.getReceiverID());
-        getMessages(chatData.getReceiverID());
-//        PrivateMessageAsyncTask task = new PrivateMessageAsyncTask(this);
-//        task.execute(chatData.getReceiverID());
-    }
     private void startFireBaseListening() {
         FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
-        helper.setListener(PrivateMessageScreen.this);
+        helper.setOnMessageAddedListener(PrivateMessageScreen.this);
         helper.listenForChatDataChange(chatID);
     }
 
@@ -324,28 +313,11 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         }
     }
 
-    private static class PrivateMessageAsyncTask extends AsyncTask<String, Void, List<MessageData>> {
-
-        private WeakReference<PrivateMessageScreen> weakReference;
-
-        PrivateMessageAsyncTask(PrivateMessageScreen activity) {
-            weakReference = new WeakReference<>(activity);
-        }
-
-        @Override
-        protected List<MessageData> doInBackground(String... strings) {
-            PrivateMessageScreen activity = weakReference.get();
-//            activity.getMessages(strings[0]);
-            return activity.messageDataList;
-        }
-
-        @Override
-        protected void onPostExecute(List<MessageData> list) {
-            super.onPostExecute(list);
-            PrivateMessageScreen activity = weakReference.get();
-//
-//            activity.adapter = new PrivateMessageRecyclerAdapter(activity, activity.messageDataList);
-//            activity.privateMessageRecycler.setAdapter(activity.adapter);
-        }
+    @Override
+    public void onMessageAdded() {
+        Log.d(TAG, "onDatabaseUpdate: load chat: " + chatID);
+        Log.d(TAG, "onDatabaseUpdate: " + chatData.getReceiverID());
+        Log.d(TAG, "onDatabaseUpdate: called");
+        getMessages();
     }
 }

@@ -16,6 +16,13 @@
         android:background="@drawable/message_right"
         android:textColor="@color/white"
         >
+        <VideoView
+            android:visibility="gone"
+            android:id="@+id/private_message_video"
+            android:layout_width="300dp"
+            android:layout_height="200dp"
+            android:layout_above="@id/private_message_content"
+            />
 
         <ImageView
             android:id="@+id/private_message_image"

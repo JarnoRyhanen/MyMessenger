@@ -7,8 +7,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,7 +21,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.home.mymessenger.R;
-import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -30,9 +30,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-public class EditImageActivity extends AppCompatActivity {
+public class EditVideoActivity extends AppCompatActivity {
 
-    private static final String TAG = "EditImageActivity";
+    private static final String TAG = "EditVideoActivity";
 
     private final FirebaseDatabase database = FirebaseDatabase.getInstance();
     private final DatabaseReference ref = database.getReference();
@@ -42,60 +42,53 @@ public class EditImageActivity extends AppCompatActivity {
 
     private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
+    private VideoView videoView;
     private EditText messageText;
-    private ImageButton sendMessageButton;
-    private ImageView messageImage;
+    private ImageButton sendMessageBtn;
 
-    private Uri imageUri;
+    private Uri videoUri;
     private String chatID;
     private String receiverID;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.edit_image_activity);
+        setContentView(R.layout.edit_video_activity);
+
+        instantiateViews();
+        setVideo();
+
         chatID = getIntent().getStringExtra("chatID");
         receiverID = getIntent().getStringExtra("receiverID");
 
-        instantiateViews();
-        imageUri = Uri.parse(getIntent().getStringExtra("uri"));
-        Picasso.get().load(imageUri).into(messageImage);
-
-
+        sendMessageBtn.setOnClickListener(onClickListener);
     }
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (v == sendMessageButton) {
-                uploadImage();
+            if (v == sendMessageBtn) {
+                Log.d(TAG, "onClick: send message pressed");
+                uploadVideo();
             }
         }
     };
 
-    private void instantiateViews() {
-        messageImage = findViewById(R.id.edit_image_activity_image_view);
-        sendMessageButton = findViewById(R.id.edit_image_activity_send_message);
-        messageText = findViewById(R.id.edit_image_activity_edit_text);
-
-        sendMessageButton.setOnClickListener(onClickListener);
-    }
-
-    private void uploadImage() {
-        if (imageUri != null) {
+    private void uploadVideo() {
+        if (videoUri != null) {
             ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setTitle("Uploading image...");
+            progressDialog.setTitle("Uploading video...");
             progressDialog.show();
 
-            String imageID = UUID.randomUUID().toString();
+            String videoID = UUID.randomUUID().toString();
 
-            StorageReference strReference = storageReference.child("images/" + chatID + "/" + imageID);
+            StorageReference strReference = storageReference.child("images/" + chatID + "/" + videoID);
 
-            strReference.putFile(imageUri)
+            strReference.putFile(videoUri)
                     .addOnSuccessListener(taskSnapshot -> {
                         progressDialog.dismiss();
                         Toast.makeText(this, "Image Uploaded!", Toast.LENGTH_SHORT).show();
-                        downloadImage(imageID);
+                        downloadImage(videoID);
 
                     }).addOnFailureListener(e -> {
                 progressDialog.dismiss();
@@ -107,8 +100,8 @@ public class EditImageActivity extends AppCompatActivity {
         }
     }
 
-    private void downloadImage(String imageID) {
-        StorageReference reference = storageReference.child("images/" + chatID + "/" + imageID);
+    private void downloadImage(String videoID) {
+        StorageReference reference = storageReference.child("images/" + chatID + "/" + videoID);
 
         reference.getDownloadUrl().addOnSuccessListener(uri -> {
             Log.d(TAG, "onSuccess: " + uri);
@@ -129,14 +122,15 @@ public class EditImageActivity extends AppCompatActivity {
         messageMap.put("sender", sender);
         messageMap.put("receiver", receiver);
         messageMap.put("date", date);
-        messageMap.put("message_image", uri.toString());
-        messageMap.put("message_video", "null");
+        messageMap.put("message_image", "null");
+        messageMap.put("message_video", uri.toString());
         reference.child("chats").child(chatID).child("messages").push().setValue(messageMap);
 
         updateLatestMessageAndDate(messageContent, date);
 
         finish();
     }
+
     private void updateLatestMessageAndDate(String messageContent, String date) {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
@@ -147,7 +141,6 @@ public class EditImageActivity extends AppCompatActivity {
         reference.child("chats").child(chatID).child("latest_message_and_date").updateChildren(latestMessageAndDateMap);
     }
 
-
     private String getDate() {
         Date c = Calendar.getInstance().getTime();
         Log.d(TAG, "onCreate: " + c);
@@ -157,5 +150,22 @@ public class EditImageActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: " + formattedDate);
         return formattedDate;
     }
+
+    private void setVideo() {
+        videoUri = Uri.parse(getIntent().getStringExtra("uri"));
+        Log.d(TAG, "onCreate: " + videoUri.toString());
+        videoView.setVideoURI(videoUri);
+        MediaController mediaController = new MediaController(this);
+        videoView.setMediaController(mediaController);
+        mediaController.setAnchorView(videoView);
+        videoView.start();
+    }
+
+    private void instantiateViews() {
+        videoView = findViewById(R.id.edit_video_video_view);
+        messageText = findViewById(R.id.edit_video_activity_edit_text);
+        sendMessageBtn = findViewById(R.id.edit_video_activity_send_message);
+    }
+
 
 }

@@ -13,6 +13,7 @@ public class MessageData extends RealmObject {
     private String receiver;
     private String date;
     private String image;
+    private String video;
 
     public String getMessageID() {
         return messageID;
@@ -60,5 +61,13 @@ public class MessageData extends RealmObject {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getVideo() {
+        return video;
+    }
+
+    public void setVideo(String video) {
+        this.video = video;
     }
 }
