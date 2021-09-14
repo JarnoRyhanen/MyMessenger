@@ -34,6 +34,7 @@
         >
 
         <EditText
+            android:padding="4dp"
             android:layout_width="0dp"
             android:layout_gravity="center"
             android:id="@+id/send_message_edit_text"
@@ -56,11 +57,11 @@
             >
 
             <ImageButton
-                android:id="@+id/voice"
+                android:id="@+id/camera"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_gravity="center"
-                android:background="@drawable/ic_baseline_keyboard_voice_24"
+                android:background="@drawable/photo2"
                 />
 
             <ImageButton

@@ -89,7 +89,7 @@ public class EditImageActivity extends AppCompatActivity {
 
             String imageID = UUID.randomUUID().toString();
 
-            StorageReference strReference = storageReference.child("images/" + chatID + "/" + imageID);
+            StorageReference strReference = storageReference.child("chats/" + chatID + "/" + imageID);
 
             strReference.putFile(imageUri)
                     .addOnSuccessListener(taskSnapshot -> {
@@ -108,7 +108,7 @@ public class EditImageActivity extends AppCompatActivity {
     }
 
     private void downloadImage(String imageID) {
-        StorageReference reference = storageReference.child("images/" + chatID + "/" + imageID);
+        StorageReference reference = storageReference.child("chats/" + chatID + "/" + imageID);
 
         reference.getDownloadUrl().addOnSuccessListener(uri -> {
             Log.d(TAG, "onSuccess: " + uri);

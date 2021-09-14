@@ -261,9 +261,6 @@ public class FireBaseDBHelper {
                         if (!messageMap.get("message_image").equals("null")) {
                             messageData.setImage((String) messageMap.get("message_image"));
                         }
-                        if (!messageMap.get("message_video").equals("null")) {
-                            messageData.setVideo((String) messageMap.get("message_video"));
-                        }
                         messageDataRealmList.add(realm.copyToRealmOrUpdate(messageData));
                     }
                 }

@@ -3,12 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.home.mymessenger"
     >
+
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name=".app.MessengerApp"
@@ -32,11 +34,6 @@
             />
         <activity
             android:name=".messaging.EditImageActivity"
-            android:theme="@style/Theme.MyMessenger.NoActionBar"
-            android:windowSoftInputMode="adjustResize"
-            />
-        <activity
-            android:name=".messaging.EditVideoActivity"
             android:theme="@style/Theme.MyMessenger.NoActionBar"
             android:windowSoftInputMode="adjustResize"
             />
@@ -68,6 +65,20 @@
             android:name=".loginsignin.ResetPasswordActivity"
             android:theme="@style/Theme.MyMessenger.NoActionBar"
             />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.home.mymessenger.messaging"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            >
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"
+                />
+
+        </provider>
     </application>
 
 </manifest>

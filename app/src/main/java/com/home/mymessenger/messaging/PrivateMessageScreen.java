@@ -3,8 +3,12 @@ package com.home.mymessenger.messaging;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,6 +46,8 @@ import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -57,8 +64,11 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
 
     private static final String TAG = "PrivateMessageScreen";
     private static final int REQUEST_CALL = 1;
+    public static final int REQUEST_CAMERA = 2;
 
-    private ActivityResultLauncher<Intent> activityResultLauncher;
+    private ActivityResultLauncher<Intent> galleryResultLauncher;
+    private ActivityResultLauncher<Intent> cameraResultLauncher;
+
 
     private ShapeableImageView shapeableImageView;
     private TextView userNameTextView;
@@ -68,7 +78,7 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
 
     private ImageButton sendMessageImageButton;
     private ImageButton addIcon;
-    private ImageButton voiceMessageIcon;
+    private ImageButton cameraIcon;
 
     private UserData userData;
 
@@ -83,6 +93,8 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
     private PrivateMessageRecyclerAdapter adapter;
     private List<MessageData> messageDataList;
     private boolean isRan = false;
+
+    private Uri photoUri;
 
     @Override
     protected void onDestroy() {
@@ -101,27 +113,45 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         setOnClickListeners();
         loadChat();
 
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    Uri uri = result.getData().getData();
-                    Log.d(TAG, "onActivityResult: " + uri.toString());
-                    if (uri.toString().contains("video")) {
-//                        Intent intent = new Intent(PrivateMessageScreen.this, EditVideoActivity.class);
-//                        setIntentExtras(intent, uri);
-                    } else {
-                        Intent intent = new Intent(PrivateMessageScreen.this, EditImageActivity.class);
-                        setIntentExtras(intent, uri);
-                    }
-                }
-            }
-        });
+        activityResultLaunchers();
 
         setToolBar();
         addChatToReceiver(chatData.getReceiverID());
         isRan = true;
         Log.d(TAG, "onCreate: " + isRan);
+    }
+
+    private void activityResultLaunchers() {
+        galleryResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                            Uri uri = result.getData().getData();
+                            Intent editImageIntent = new Intent(PrivateMessageScreen.this, EditImageActivity.class);
+                            setIntentExtras(editImageIntent, uri);
+                        }
+                    }
+                });
+
+        cameraResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        Log.d(TAG, "onActivityResult: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                        Log.d(TAG, "onActivityResult: " + result.getResultCode());
+                        Log.d(TAG, "onActivityResult: " + result.getData());
+
+                        if (result.getResultCode() == RESULT_OK) {
+                            Uri uri = photoUri;
+                            Log.d(TAG, "onActivityResult: uri  " + uri);
+                            Intent editImageIntent = new Intent(PrivateMessageScreen.this, EditImageActivity.class);
+                            setIntentExtras(editImageIntent, uri);
+                        }
+                    }
+                });
     }
 
     private void setIntentExtras(Intent intent, Uri uri) {
@@ -131,21 +161,15 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         startActivity(intent);
     }
 
-
     private final View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if (v == addIcon) {
-
                 Log.d(TAG, "onClick: add icon pressed");
-                Intent imageGalleryIntent = new Intent(Intent.ACTION_PICK);
-                imageGalleryIntent.setType("video/*, image/*");
-                if (imageGalleryIntent.resolveActivity(getPackageManager()) != null) {
-                    activityResultLauncher.launch(imageGalleryIntent);
-                }
-
-            } else if (v == voiceMessageIcon) {
-                Log.d(TAG, "onClick: voice pressed");
+                openGallery();
+            } else if (v == cameraIcon) {
+                Log.d(TAG, "onClick: camera pressed");
+                askForCameraPermission();
             } else if (v == sendMessageImageButton) {
                 String message = sendMessageEditText.getText().toString();
                 if (!message.equals("")) {
@@ -156,9 +180,37 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         }
     };
 
+    private void openGallery() {
+        Intent imageGalleryIntent = new Intent(Intent.ACTION_PICK);
+        imageGalleryIntent.setType("image/*");
+        if (imageGalleryIntent.resolveActivity(getPackageManager()) != null) {
+            imageGalleryIntent.putExtra("gallery", "one");
+            galleryResultLauncher.launch(imageGalleryIntent);
+        }
+    }
+
+
+    private void openCamera() {
+        File photoFile = createImageFile();
+        if (photoFile != null) {
+            Intent openCameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+            photoUri = FileProvider.getUriForFile(this,
+                    "com.home.mymessenger.messaging",
+                    photoFile);
+            openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+
+            if (openCameraIntent.resolveActivity(getPackageManager()) != null) {
+//                Log.d(TAG, "openCamera: " + photoFile);
+//                Log.d(TAG, "openCamera: " + photoUri);
+                cameraResultLauncher.launch(openCameraIntent);
+            }
+        }
+    }
+
     private void setOnClickListeners() {
         addIcon.setOnClickListener(onClickListener);
-        voiceMessageIcon.setOnClickListener(onClickListener);
+        cameraIcon.setOnClickListener(onClickListener);
         sendMessageImageButton.setOnClickListener(onClickListener);
     }
 
@@ -169,7 +221,7 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         sendMessageEditText = findViewById(R.id.send_message_edit_text);
         sendMessageImageButton = findViewById(R.id.send_message_image_button);
         addIcon = findViewById(R.id.add);
-        voiceMessageIcon = findViewById(R.id.voice);
+        cameraIcon = findViewById(R.id.camera);
     }
 
     private void createRecyclerView() {
@@ -204,7 +256,6 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         messageMap.put("receiver", receiver);
         messageMap.put("date", date);
         messageMap.put("message_image", messageImage);
-        messageMap.put("message_video", "null");
         reference.child("chats").child(chatID).child("messages").push().setValue(messageMap);
 
         updateLatestMessageAndDate(messageContent, date);
@@ -230,8 +281,9 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
             }
         }
         adapter = new PrivateMessageRecyclerAdapter(this, messageDataList);
+        adapter.setHasStableIds(true);
         privateMessageRecycler.setAdapter(adapter);
-//        adapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged();
     }
 
     private void loadChat() {
@@ -240,7 +292,6 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         userNameTextView.setText(chatData.getReceiver());
         userData = realm.where(UserData.class).equalTo("userID", chatData.getReceiverID()).findFirst();
         if (userData != null) {
-            Log.d(TAG, "loadChat: WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW");
             userStatusTextView.setText(userData.getUserStatus());
             Picasso.get().load(userData.getUserProfilePicture()).fit().centerInside().into(shapeableImageView);
         }
@@ -304,13 +355,55 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CALL) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                callPhone();
-            } else {
-                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
-            }
+
+        switch (requestCode) {
+            case REQUEST_CALL:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    callPhone();
+                } else {
+                    Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case REQUEST_CAMERA:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    openCamera();
+                } else {
+                    askForCameraPermission();
+                }
+                break;
+
         }
+    }
+
+    private void askForCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                            Manifest.permission.CAMERA
+                    },
+                    REQUEST_CAMERA);
+        } else {
+            openCamera();
+        }
+    }
+
+    private File createImageFile() {
+        File image = null;
+        try {
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            String imageFileName = "JPEG_" + timeStamp + "_";
+            File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            image = File.createTempFile(imageFileName, ".jpg", storageDirectory);
+            Log.d(TAG, "createImageFile: TIMESTAMP: " + timeStamp + ", IMAGE FILENAME: " + imageFileName + ", STORAGE DIRECTORY: " + storageDirectory);
+
+//            currentPhotoPath = image.getAbsolutePath();
+
+            return image;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

@@ -1,15 +1,11 @@
 package com.home.mymessenger.messaging;
 
 import android.content.Context;
-import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.MediaController;
 import android.widget.TextView;
-import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -64,18 +60,6 @@ public class PrivateMessageRecyclerAdapter extends RecyclerView.Adapter<PrivateM
 //                        .placeholder(R.mipmap.ic_launcher)
                         .into(holder.messageImageView);
             }
-//            if (messageData.getVideo() != null) {
-//                Log.d(TAG, "onBindViewHolder: " + messageData.getVideo());
-//                holder.videoView.setVisibility(View.VISIBLE);
-//
-//                Uri uri = Uri.parse(messageData.getVideo());
-//                holder.videoView.setVideoURI(uri);
-//                MediaController mediaController = new MediaController(context);
-//                holder.videoView.setMediaController(mediaController);
-//                mediaController.setAnchorView(holder.videoView);
-////                holder.videoView.start();
-//            }
-
         }
     }
 
@@ -93,13 +77,16 @@ public class PrivateMessageRecyclerAdapter extends RecyclerView.Adapter<PrivateM
             return MESSAGE_TYPE_LEFT;
         }
     }
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
 
     public static class PrivateMessageViewHolder extends RecyclerView.ViewHolder {
 
         public TextView messageContentView;
         public TextView messageDateView;
         public ImageView messageImageView;
-        public VideoView videoView;
 
         public PrivateMessageViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -107,7 +94,6 @@ public class PrivateMessageRecyclerAdapter extends RecyclerView.Adapter<PrivateM
             messageContentView = itemView.findViewById(R.id.private_message_content);
             messageDateView = itemView.findViewById(R.id.private_message_date);
             messageImageView = itemView.findViewById(R.id.private_message_image);
-            videoView = itemView.findViewById(R.id.private_message_video);
         }
     }
 
