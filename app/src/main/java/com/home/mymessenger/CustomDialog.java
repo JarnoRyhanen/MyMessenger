@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,14 +14,19 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.home.mymessenger.data.ContactData;
 import com.home.mymessenger.data.UserData;
 import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,6 +45,7 @@ public class CustomDialog extends AppCompatDialogFragment {
     private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private final FireBaseDBHelper fireBaseDBHelper = new FireBaseDBHelper();
 
+    private final List<String> contactIDList = new ArrayList<>();
 
     @NonNull
     @Override
@@ -54,8 +61,7 @@ public class CustomDialog extends AppCompatDialogFragment {
 
                 })
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    //todo check if the user already has the selected person in their chats
-                    performUserQuery();
+                    isUserInContacts();
                 });
         textView = view.findViewById(R.id.layout_dialog_text_view);
         textView.setText(String.format("Do you want to start a chat with %s", getTag()));
@@ -63,8 +69,38 @@ public class CustomDialog extends AppCompatDialogFragment {
         return builder.create();
     }
 
-    private void performUserQuery() {
+    private void isUserInContacts() {
+        DatabaseReference reference = ref.child("user_specific_info").child(user.getUid()).child("contacts");
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
 
+                    ContactData contactData = realm.where(ContactData.class).equalTo("contactPhoneNumber", getTag().trim()).findFirst();
+                    if (contactData != null) {
+                        String contactID = contactData.getContactID();
+                        Map<String, Object> contactsMap = (Map<String, Object>) snapshot.getValue();
+
+                        contactIDList.addAll(contactsMap.keySet());
+
+                        if (contactIDList.contains(contactID)) {
+                            Toast.makeText(getActivity(), "You already have this user in your chats", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "onDataChange: " + contactData.getContactName() + " is in list");
+                        } else {
+                            performUserQuery();
+                            Log.d(TAG, "onDataChange: " + contactID + " is not in list");
+                        }
+
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+    }
+
+    private void performUserQuery() {
         ContactData contact = realm.where(ContactData.class).equalTo("contactPhoneNumber", getTag().trim()).findFirst();
         if (contact != null) {
             Log.d(TAG, "performUserQuery: " + contact.getContactName() + " " + contact.getContactPhoneNumber());
@@ -74,7 +110,6 @@ public class CustomDialog extends AppCompatDialogFragment {
             addToChats(contact, chatID);
             updateContactInbox(contact, chatID);
         }
-
     }
 
     private void addToChats(ContactData contact, String chatID) {

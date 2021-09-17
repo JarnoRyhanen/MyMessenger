@@ -136,68 +136,6 @@ public class SearchForContactsActivity extends AppCompatActivity {
         protected String doInBackground(Void... voids) {
 
             SearchForContactsActivity activity = weakReference.get();
-//            DatabaseReference userRef = activity.ref.child("users");
-//            userRef.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                    if (snapshot.exists()) {
-//                        final Map<String, Object> userMap = (Map<String, Object>) snapshot.getValue();
-//                        if (userMap != null) {
-//                            for (String userID : userMap.keySet()) {
-//                                String foundUserName = userMap.get(userID).toString().trim();
-//                                Log.d(TAG, "onDataChange: " + foundUserName);
-////                                getContact(userID);
-//
-//                                DatabaseReference userSpecificInfoRef = activity.ref.child("user_specific_info").child(userID).child("phone_number");
-//                                userSpecificInfoRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//                                    @Override
-//                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                                        if (snapshot.exists()) {
-//                                            String foundPhoneNumber = snapshot.getValue().toString().trim();
-//
-//                                            Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(foundPhoneNumber));
-//                                            Cursor cursor = activity.getContentResolver().query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME},
-//                                                    null,
-//                                                    null,
-//                                                    null,
-//                                                    null);
-//
-//                                            if (cursor.getCount() > 0) {
-//                                                while (cursor.moveToNext()) {
-//                                                    String contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-//                                                    String contactNumber = cursor.getString(0);
-////                                                Log.d(TAG, "onDataChange: contactnumber: " + contactNumber + " found number: " + foundPhoneNumber);
-//                                                    Log.d(TAG, "name: " + contactName + " found username: " + foundUserName +
-//                                                            " number: " + contactNumber + " found phonenumber: " + foundPhoneNumber);
-//
-//                                                    Uri phoneUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-//                                                    Cursor phoneCursor = activity.getContentResolver().query(
-//                                                            phoneUri,
-//                                                            null,
-//                                                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " =?",
-//                                                            new String[]{},
-//                                                            null);
-//                                                }
-//                                                cursor.close();
-//                                            }
-//                                        }
-//                                    }
-//
-//                                    @Override
-//                                    public void onCancelled(@NonNull DatabaseError error) {
-//
-//                                    }
-//                                });
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError error) {
-//                    error.getMessage();
-//                }
-//            });
             activity.fireBaseDBHelper.setActivity(activity);
             activity.fireBaseDBHelper.checkForUser1();
             for (int i = 0; i < 1; i++) {
