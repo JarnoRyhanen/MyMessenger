@@ -19,9 +19,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -222,22 +219,18 @@ public class UserProfileFragment extends Fragment {
                 replaceFragment(new ChangeUserNameFragment());
             } else if (v == statusEditText) {
                 replaceFragment(new ChangeStatusFragment());
-            }else if(v == signOutButton){
-                signOut();
+            } else if (v == signOutButton) {
+//                signOut();
+                openDialog();
             }
         }
     };
 
-    private void signOut() {
-        AuthUI.getInstance().signOut(getActivity()).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Intent intent = new Intent(getActivity(), LogInActivity.class);
-                startActivity(intent);
-                getActivity().finish();
-            }
-        });
+    private void openDialog() {
+        SignOutDialogFragment signOutDialogFragment = new SignOutDialogFragment();
+        signOutDialogFragment.show(getActivity().getSupportFragmentManager(), "sign out dialog");
     }
+
 
     private void replaceFragment(Fragment fragment) {
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();

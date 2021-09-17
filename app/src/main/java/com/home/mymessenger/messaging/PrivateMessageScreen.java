@@ -101,7 +101,7 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         FireBaseDBHelper.getInstance().removeListenerFromLoadChatContent();
         Log.d(TAG, "onDestroy: value event listener removed from load chat content");
     }
-
+//todo DELETE MESSAGES
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

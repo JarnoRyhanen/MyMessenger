@@ -48,8 +48,6 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
     private RecyclerView recyclerView;
     private FloatingActionButton floatingActionButton;
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-    private Button button;
-    private EditText editText;
 
     private final FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
 
@@ -70,8 +68,6 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
 
         Log.d(TAG, "onCreate: internet connection: " + isNetworkConnected());
         Log.d(TAG, "onCreate: USER ID   " + user.getUid());
-//        button = findViewById(R.id.soita);
-//        editText = findViewById(R.id.numero);
 
         Log.d(TAG, "onCreate: CURRENT USER IS: " + user.getDisplayName());
 
@@ -157,9 +153,6 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
         if (view == floatingActionButton) {
             Intent intent = new Intent(this, SearchForContactsActivity.class);
             startActivity(intent);
-        } else if (view == button) {
-//            callPhone();
-            Log.d(TAG, "onClick: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2");
         }
     }
 

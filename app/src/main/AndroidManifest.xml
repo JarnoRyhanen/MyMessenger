@@ -52,6 +52,7 @@
         <activity
             android:name=".userProfile.UserProfileActivity"
             android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTop"
             />
         <activity
             android:name=".loginsignin.SignInActivity"
