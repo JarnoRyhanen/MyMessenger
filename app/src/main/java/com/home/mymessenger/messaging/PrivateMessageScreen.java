@@ -3,9 +3,7 @@ package com.home.mymessenger.messaging;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -91,7 +89,8 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
 
     private RecyclerView privateMessageRecycler;
     private PrivateMessageRecyclerAdapter adapter;
-    private List<MessageData> messageDataList;
+//    private final List<MessageData> messageDataList = new ArrayList<>();
+
     private boolean isRan = false;
 
     private Uri photoUri;
@@ -140,10 +139,6 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
                 new ActivityResultCallback<ActivityResult>() {
                     @Override
                     public void onActivityResult(ActivityResult result) {
-                        Log.d(TAG, "onActivityResult: @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-                        Log.d(TAG, "onActivityResult: " + result.getResultCode());
-                        Log.d(TAG, "onActivityResult: " + result.getData());
-
                         if (result.getResultCode() == RESULT_OK) {
                             Uri uri = photoUri;
                             Log.d(TAG, "onActivityResult: uri  " + uri);
@@ -201,8 +196,6 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
             openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
 
             if (openCameraIntent.resolveActivity(getPackageManager()) != null) {
-//                Log.d(TAG, "openCamera: " + photoFile);
-//                Log.d(TAG, "openCamera: " + photoUri);
                 cameraResultLauncher.launch(openCameraIntent);
             }
         }
@@ -230,6 +223,10 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         linearLayoutManager.setStackFromEnd(true);
         privateMessageRecycler.setLayoutManager(linearLayoutManager);
+
+        adapter = new PrivateMessageRecyclerAdapter(this);
+        adapter.setHasStableIds(true);
+        privateMessageRecycler.setAdapter(adapter);
     }
 
     private void addChatToReceiver(String receiverID) {
@@ -272,17 +269,13 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
     }
 
     private void getMessages() {
-        messageDataList = new ArrayList<>();
-        messageDataList.clear();
+        adapter.clear();
         for (MessageData message : chatData.getMessages().sort("messageID", Sort.ASCENDING)) {
             if (message != null) {
                 Log.d(TAG, "getMessages: messages added to the list: " + message.getMessageContent() + "      " + message);
-                messageDataList.add(message);
+                adapter.addMessage(message);
             }
         }
-        adapter = new PrivateMessageRecyclerAdapter(this, messageDataList);
-        adapter.setHasStableIds(true);
-        privateMessageRecycler.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
 

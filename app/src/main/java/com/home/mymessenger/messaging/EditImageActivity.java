@@ -130,7 +130,6 @@ public class EditImageActivity extends AppCompatActivity {
         messageMap.put("receiver", receiver);
         messageMap.put("date", date);
         messageMap.put("message_image", uri.toString());
-        messageMap.put("message_video", "null");
         reference.child("chats").child(chatID).child("messages").push().setValue(messageMap);
 
         updateLatestMessageAndDate(messageContent, date);

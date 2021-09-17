@@ -16,6 +16,7 @@ import com.home.mymessenger.R;
 import com.home.mymessenger.data.MessageData;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PrivateMessageRecyclerAdapter extends RecyclerView.Adapter<PrivateMessageRecyclerAdapter.PrivateMessageViewHolder> {
@@ -26,11 +27,10 @@ public class PrivateMessageRecyclerAdapter extends RecyclerView.Adapter<PrivateM
     private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
     private Context context;
-    private List<MessageData> chatDataList;
+    private List<MessageData> chatDataList = new ArrayList<>();
 
-    public PrivateMessageRecyclerAdapter(Context context, List<MessageData> chatDataList) {
+    public PrivateMessageRecyclerAdapter(Context context) {
         this.context = context;
-        this.chatDataList = chatDataList;
     }
 
     @NonNull
@@ -55,12 +55,21 @@ public class PrivateMessageRecyclerAdapter extends RecyclerView.Adapter<PrivateM
             holder.messageDateView.setText(messageData.getDate());
 
             if (messageData.getImage() != null) {
-                Picasso.get()
-                        .load(messageData.getImage())
-//                        .placeholder(R.mipmap.ic_launcher)
-                        .into(holder.messageImageView);
+                if(!messageData.getImage().isEmpty()){
+                    Picasso.get()
+                            .load(messageData.getImage())
+                            .into(holder.messageImageView);
+                }
             }
         }
+    }
+
+    public void addMessage(MessageData message){
+        chatDataList.add(message);
+    }
+
+    public void clear(){
+        chatDataList.clear();
     }
 
     @Override
