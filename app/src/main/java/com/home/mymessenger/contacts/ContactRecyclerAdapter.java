@@ -26,7 +26,7 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
 
     private static final String TAG = "ContactRecyclerAdapter";
 
-    private Context context;
+    private final Context context;
     private List<ContactData> contactDataList = new ArrayList<>();
     private List<ContactData> contactDataListFull = new ArrayList<>();
 

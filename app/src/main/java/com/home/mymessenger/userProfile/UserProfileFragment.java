@@ -220,7 +220,6 @@ public class UserProfileFragment extends Fragment {
             } else if (v == statusEditText) {
                 replaceFragment(new ChangeStatusFragment());
             } else if (v == signOutButton) {
-//                signOut();
                 openDialog();
             }
         }

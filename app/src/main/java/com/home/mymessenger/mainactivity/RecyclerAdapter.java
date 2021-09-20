@@ -3,7 +3,9 @@ package com.home.mymessenger.mainactivity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -20,13 +22,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.home.mymessenger.IntentKeys;
-import com.home.mymessenger.messaging.PrivateMessageScreen;
 import com.home.mymessenger.R;
 import com.home.mymessenger.data.ChatData;
 import com.home.mymessenger.data.UserData;
 import com.home.mymessenger.dp.RealmHelper;
+import com.home.mymessenger.messaging.PrivateMessageScreen;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,9 +37,10 @@ import io.realm.Realm;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatViewHolder> {
 
+    public static final int DELETE_CHAT = 1;
     private final static String TAG = "RecyclerAdapter";
     private final Context context;
-    private final List<ChatData> list;
+    protected final List<ChatData> chatList = new ArrayList<>();
     private boolean isActive;
 
     String chatID;
@@ -45,16 +49,16 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
     private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     private final Realm realm = RealmHelper.getInstance().getRealm();
 
-    public RecyclerAdapter(Context context, List<ChatData> list, boolean isActive) {
+
+    public RecyclerAdapter(Context context, boolean isActive) {
         this.context = context;
-        this.list = list;
         this.isActive = isActive;
     }
 
     @NonNull
     @Override
     public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ChatViewHolder(LayoutInflater.from(context).inflate(R.layout.main_activity_recycler_list_row, parent, false));
+        return new ChatViewHolder(LayoutInflater.from(context).inflate(R.layout.main_activity_recycler_list_row, parent, false), onTouchListener);
     }
 
     @Override
@@ -65,9 +69,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
     @Override
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
 
-        ChatData data = list.get(position);
+        ChatData data = chatList.get(position);
 
-        Log.d(TAG, "onBindViewHolder: " + data.getLatestMessage());
         holder.chatID = data.getChatID();
         chatID = holder.chatID;
         holder.userName.setText(data.getReceiver());
@@ -95,20 +98,35 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
         }
     }
 
+    public void delete(int position){
+        chatList.remove(position);
+        notifyItemRemoved(position);
+    }
+
     public void add(ChatData data) {
-        list.add(data);
+        chatList.add(data);
     }
 
     public void clear() {
-        list.clear();
+        chatList.clear();
     }
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return chatList.size();
     }
 
-    public static class ChatViewHolder extends RecyclerView.ViewHolder {
+    private OnTouchListener onTouchListener;
+
+    public interface OnTouchListener {
+        void onTouch(int position);
+    }
+
+    public void setOnTouchListener(OnTouchListener listener) {
+        this.onTouchListener = listener;
+    }
+
+    public static class ChatViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
 
         public String chatID;
         public TextView date;
@@ -118,9 +136,24 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
         public ShapeableImageView online;
         public ShapeableImageView offline;
 
-        public ChatViewHolder(@NonNull View itemView) {
+
+        public ChatViewHolder(@NonNull View itemView, OnTouchListener listener) {
             super(itemView);
             itemView.setOnClickListener(onRowClick);
+            itemView.setOnCreateContextMenuListener(this);
+
+            itemView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (listener != null) {
+                        int position = getBindingAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            listener.onTouch(position);
+                        }
+                    }
+                    return false;
+                }
+            });
 
             date = itemView.findViewById(R.id.latest_active_date);
             userName = itemView.findViewById(R.id.user_name);
@@ -137,6 +170,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
             intent.putExtra(IntentKeys.CHAT_ID, chatID);
             ctx.startActivity(intent);
         };
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            menu.setHeaderTitle("Delete this chat?");
+            menu.add(this.getBindingAdapterPosition(), DELETE_CHAT, 0, "Delete chat");
+        }
     }
 
     private String lastMessageString;
@@ -165,6 +204,4 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
             }
         });
     }
-
-
 }

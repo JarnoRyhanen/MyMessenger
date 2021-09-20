@@ -8,8 +8,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +28,7 @@ import com.home.mymessenger.contacts.SearchForContactsActivity;
 import com.home.mymessenger.data.ChatData;
 import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
+import com.home.mymessenger.userProfile.SignOutDialogFragment;
 import com.home.mymessenger.userProfile.UserProfileActivity;
 
 import java.util.ArrayList;
@@ -41,7 +40,7 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.onDatabaseUpdateListener, FireBaseDBHelper.onLatestMessageAddedListener {
-    private static final int REQUEST_CALL = 1;
+    public static final int DELETE_CHAT = 1;
     private static final String TAG = "MainActivity";
 
     private RecyclerAdapter adapter;
@@ -58,13 +57,15 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
     private boolean isActive = true;
     private boolean isRan = false;
 
+    private int mPosition;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        recyclerView = findViewById(R.id.main_activity_recycler_view);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        buildRecyclerView();
 
         Log.d(TAG, "onCreate: internet connection: " + isNetworkConnected());
         Log.d(TAG, "onCreate: USER ID   " + user.getUid());
@@ -79,9 +80,25 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
             Log.d(TAG, "onCreate: i am called");
             startFireBaseListening();
             isRan = true;
-        }else {
+        } else {
             updateContent();
         }
+    }
+
+    private void buildRecyclerView() {
+        recyclerView = findViewById(R.id.main_activity_recycler_view);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        adapter = new RecyclerAdapter(MainActivity.this, isActive);
+        recyclerView.setAdapter(adapter);
+
+        adapter.setOnTouchListener(new RecyclerAdapter.OnTouchListener() {
+            @Override
+            public void onTouch(int position) {
+                mPosition = position;
+            }
+        });
     }
 
     //todo delete user from chats
@@ -122,15 +139,14 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
 
     private void updateContent() {
         chatDataList.clear();
+        adapter.clear();
 
         RealmResults<ChatData> data = realm.where(ChatData.class).findAll();
         for(ChatData chatData : data){
-            chatDataList.add(chatData);
-            Log.d(TAG, "updateContent: " + chatData.getLatestMessage());
+            adapter.add(chatData);
         }
-        adapter = new RecyclerAdapter(MainActivity.this, chatDataList, isActive);
-        recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+        Log.d(TAG, "updateContent: called");
     }
 
 
@@ -182,13 +198,26 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
 
     @Override
     public void onDatabaseUpdate() {
-        Log.d(TAG, "onDatabaseUpdate: mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
         updateContent();
     }
 
     @Override
     public void onLatestMessageAdded() {
-        Log.d(TAG, "onLatestMessageAdded: NEW MESSAGE ADDED");
         updateContent();
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+
+        if (item.getItemId() == DELETE_CHAT) {
+            openDialog();
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    private void openDialog() {
+        DeleteChatDialogFragment deleteChatDialogFragment = new DeleteChatDialogFragment(adapter, mPosition);
+        deleteChatDialogFragment.show(getSupportFragmentManager(), "delete chat dialog");
     }
 }

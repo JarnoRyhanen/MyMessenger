@@ -167,8 +167,6 @@ public class FireBaseDBHelper {
                         final Object changedData = snapshot.getValue();
                         updateUserChats(changedData);
 //                    Log.d(TAG, "onDataChange " + changedData);
-                    } else {
-//                        Log.d(TAG, "onDataChange:   NO INTERNET");
                     }
                 }
 
@@ -180,36 +178,43 @@ public class FireBaseDBHelper {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void updateUserChats(Object userChat) {
         if (userChat instanceof Map) {
             final Map<String, Object> userChatMap = (Map<String, Object>) userChat;
-
-            realm.executeTransaction(realm1 -> {
+            if (userChatMap != null) {
+                realm.beginTransaction();
                 for (String key : userChatMap.keySet()) {
                     Log.d(TAG, "updateUserChats: key: " + key);
 
                     Object chatObject = userChatMap.get(key);
-                    final Map<String, Object> chatObjectMap = (Map<String, Object>) chatObject;
-//                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("chat_name"));
-//                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("date"));
-//                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("latest_message"));
-//                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("user_name"));
-//                    Log.d(TAG, "updateUserChats: " + chatObjectMap.get("user_profile_pic"));
-                    ChatData chatData = new ChatData();
-                    chatData.setChatID(key);
-                    chatData.setLatestActive((String) chatObjectMap.get("latest_message_date"));
-                    chatData.setLatestMessage((String) chatObjectMap.get("latest_message"));
-                    chatData.setProfilePicture((String) chatObjectMap.get("user_profile_pic"));
-                    chatData.setReceiver((String) chatObjectMap.get("receiver"));
-                    chatData.setReceiverID((String) chatObjectMap.get("receiverID"));
-                    chatData.setMessages(new RealmList<>());
-                    realm.copyToRealmOrUpdate(chatData);
+                    if (chatObject != null) {
+                        final Map<String, Object> chatObjectMap = (Map<String, Object>) chatObject;
+                        if (chatObjectMap != null) {
+//                            Log.d(TAG, "updateUserChats: " + chatObjectMap.get("chat_name"));
+//                            Log.d(TAG, "updateUserChats: " + chatObjectMap.get("date"));
+//                            Log.d(TAG, "updateUserChats: " + chatObjectMap.get("latest_message"));
+//                            Log.d(TAG, "updateUserChats: " + chatObjectMap.get("user_name"));
+//                            Log.d(TAG, "updateUserChats: " + chatObjectMap.get("user_profile_pic"));
+                            ChatData chatData = new ChatData();
+                            if (chatData != null) {
+                                chatData.setChatID(key);
+                                chatData.setLatestActive((String) chatObjectMap.get("latest_message_date"));
+                                chatData.setLatestMessage((String) chatObjectMap.get("latest_message"));
+                                chatData.setProfilePicture((String) chatObjectMap.get("user_profile_pic"));
+                                chatData.setReceiver((String) chatObjectMap.get("receiver"));
+                                chatData.setReceiverID((String) chatObjectMap.get("receiverID"));
+                                chatData.setMessages(new RealmList<>());
+                                realm.insertOrUpdate(chatData);
+                            }
+                        }
+                    }
                 }
-            });
-            if (listener != null) {
-                Log.d(TAG, "updateC: LISTENER CALLED IN UPDATEUSERCHATS");
-                listener.onDatabaseUpdate();
+
+                realm.commitTransaction();
+                if (listener != null) {
+                    Log.d(TAG, "updateC: LISTENER CALLED IN UPDATEUSERCHATS");
+                    listener.onDatabaseUpdate();
+                }
             }
         }
     }
@@ -371,8 +376,6 @@ public class FireBaseDBHelper {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 final Object picture = snapshot.getValue();
                 final Map<String, Object> picMap = (Map<String, Object>) picture;
-
-//                UserData userData = realm.where(UserData.class).equalTo("userID", user.getUid()).findFirst();
 
                 Log.d(TAG, "onData change" + picMap.get("profile_picture"));
                 String pictureUrl = (String) picMap.get("profile_picture");

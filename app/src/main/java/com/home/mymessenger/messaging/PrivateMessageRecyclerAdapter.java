@@ -45,7 +45,7 @@ public class PrivateMessageRecyclerAdapter extends RecyclerView.Adapter<PrivateM
         } else {
             view = LayoutInflater.from(context).inflate(R.layout.private_message_list_row_right, parent, false);
         }
-        return new PrivateMessageViewHolder(view, onItemLongClickListener);
+        return new PrivateMessageViewHolder(view, onTouchListener);
     }
 
     @Override
@@ -94,14 +94,14 @@ public class PrivateMessageRecyclerAdapter extends RecyclerView.Adapter<PrivateM
         return position;
     }
 
-    private OnTouchListener onItemLongClickListener;
+    private OnTouchListener onTouchListener;
 
     public interface OnTouchListener {
         void onTouch(int position);
     }
 
-    public void setOnItemLongClickListener(OnTouchListener listener) {
-        this.onItemLongClickListener = listener;
+    public void setOnTouchListener(OnTouchListener listener) {
+        this.onTouchListener = listener;
     }
 
 

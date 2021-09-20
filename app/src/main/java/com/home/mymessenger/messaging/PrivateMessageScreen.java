@@ -229,7 +229,7 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         adapter.setHasStableIds(true);
         privateMessageRecycler.setAdapter(adapter);
 
-        adapter.setOnItemLongClickListener(new PrivateMessageRecyclerAdapter.OnTouchListener() {
+        adapter.setOnTouchListener(new PrivateMessageRecyclerAdapter.OnTouchListener() {
             @Override
             public void onTouch(int position) {
                 mPosition = position;
