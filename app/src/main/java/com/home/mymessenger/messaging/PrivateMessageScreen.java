@@ -30,6 +30,8 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -47,11 +49,9 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -94,6 +94,7 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
     private boolean isRan = false;
 
     private Uri photoUri;
+    private int mPosition;
 
     @Override
     protected void onDestroy() {
@@ -101,7 +102,7 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         FireBaseDBHelper.getInstance().removeListenerFromLoadChatContent();
         Log.d(TAG, "onDestroy: value event listener removed from load chat content");
     }
-//todo DELETE MESSAGES
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,9 +116,9 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         activityResultLaunchers();
 
         setToolBar();
-        addChatToReceiver(chatData.getReceiverID());
         isRan = true;
         Log.d(TAG, "onCreate: " + isRan);
+
     }
 
     private void activityResultLaunchers() {
@@ -227,11 +228,46 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         adapter = new PrivateMessageRecyclerAdapter(this);
         adapter.setHasStableIds(true);
         privateMessageRecycler.setAdapter(adapter);
+
+        adapter.setOnItemLongClickListener(new PrivateMessageRecyclerAdapter.OnTouchListener() {
+            @Override
+            public void onTouch(int position) {
+                mPosition = position;
+            }
+        });
     }
 
-    private void addChatToReceiver(String receiverID) {
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-        reference.child("user_chats").child(receiverID).child(chatID);
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+
+        if (item.getItemId() == R.id.delete_message) {
+            deleteMessage();
+            return true;
+        }
+        return super.onContextItemSelected(item);
+
+    }
+
+    private void deleteMessage() {
+
+        Log.d(TAG, "deleteMessage: " + adapter.chatDataList.get(mPosition).getMessageID());
+        if (adapter.chatDataList.get(mPosition).getSender().equals(user.getUid())) {
+            DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
+                    .child("chats")
+                    .child(chatID)
+                    .child("messages")
+                    .child(adapter.chatDataList.get(mPosition).getMessageID());
+
+            reference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    Toast.makeText(PrivateMessageScreen.this, "Message removed", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        }else {
+            Toast.makeText(this, "you cannot delete other peoples messages", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private String getDate() {
@@ -388,8 +424,6 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
             File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
             image = File.createTempFile(imageFileName, ".jpg", storageDirectory);
             Log.d(TAG, "createImageFile: TIMESTAMP: " + timeStamp + ", IMAGE FILENAME: " + imageFileName + ", STORAGE DIRECTORY: " + storageDirectory);
-
-//            currentPhotoPath = image.getAbsolutePath();
 
             return image;
 

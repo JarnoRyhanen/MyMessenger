@@ -11,4 +11,5 @@
     <string name="enter_your_email_address">Enter your email address</string>
     <string name="reset_password">Reset password</string>
     <string name="log_in">Log in</string>
+    <string name="delete_message">Delete message</string>
 </resources>

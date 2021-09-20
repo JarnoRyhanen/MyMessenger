@@ -84,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
         }
     }
 
+    //todo delete user from chats
+
     private boolean isNetworkConnected() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
