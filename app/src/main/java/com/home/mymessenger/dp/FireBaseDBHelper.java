@@ -82,7 +82,6 @@ public class FireBaseDBHelper {
             databaseReference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    Log.d(TAG, "onDataChange: " + getLocalResources().getString(R.string.user_specific_info));
                     final Object changedData = snapshot.getValue();
                     updateUser(changedData, currentUserID);
                 }
@@ -105,7 +104,6 @@ public class FireBaseDBHelper {
                 userData.setUserName((String) userMap.get(getLocalResources().getString(R.string.user_name)));
                 userData.setUserProfilePicture((String) userMap.get(getLocalResources().getString(R.string.profile_picture)));
                 userData.setUserStatus((String) userMap.get(getLocalResources().getString(R.string.current_status)));
-                userData.setActivityStatus((String) userMap.get(getLocalResources().getString(R.string.activity_status)));
                 userData.setUserPhoneNumber((String) userMap.get(getLocalResources().getString(R.string.phone_number)));
                 realm.copyToRealmOrUpdate(userData);
             });
@@ -118,14 +116,14 @@ public class FireBaseDBHelper {
 
     public void listenToContactUsersDataChange() {
         if (user != null) {
-            DatabaseReference databaseReference = database.getReference(String.valueOf(R.string.user_specific_info))
+            DatabaseReference databaseReference = database.getReference(getLocalResources().getString(R.string.user_specific_info))
                     .child(user.getUid())
                     .child(getLocalResources().getString(R.string.contacts));
             databaseReference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        readOtherUsersData(dataSnapshot.getKey());
+                        readContactUsersData(dataSnapshot.getKey());
                     }
                     if (listener != null) {
                         Log.d(TAG, "updateContent: LISTENER CALLED IN LISTEN TO CONTACT USERS DATA CHANGE");
@@ -141,7 +139,7 @@ public class FireBaseDBHelper {
         }
     }
 
-    private void readOtherUsersData(String userID) {
+    private void readContactUsersData(String userID) {
         DatabaseReference databaseReference = ref.child(getLocalResources().getString(R.string.user_specific_info)).child(userID);
         Log.d(TAG, "readOtherUsersData: " + userID);
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -154,11 +152,11 @@ public class FireBaseDBHelper {
                     realm.executeTransaction(realm1 -> {
                         UserData data = new UserData();
                         data.setUserID(userID);
+//                        Log.d(TAG, "onDataChange: " +userMap.get(getLocalResources().getString(R.string.user_name)));
                         data.setUserName((String) userMap.get(getLocalResources().getString(R.string.user_name)));
                         data.setUserProfilePicture((String) userMap.get(getLocalResources().getString(R.string.profile_picture)));
                         data.setUserStatus((String) userMap.get(getLocalResources().getString(R.string.current_status)));
                         data.setUserPhoneNumber((String) userMap.get(getLocalResources().getString(R.string.phone_number)));
-                        data.setActivityStatus((String) userMap.get(getLocalResources().getString(R.string.activity_status)));
                         realm.copyToRealmOrUpdate(data);
                     });
                 }
@@ -179,7 +177,7 @@ public class FireBaseDBHelper {
             DatabaseReference myRef = database.getReference(getLocalResources().getString(R.string.user_chats))
                     .child(currentUserID);
 
-            myRef.addValueEventListener(new ValueEventListener() {
+            myRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
@@ -212,7 +210,7 @@ public class FireBaseDBHelper {
 //                            Log.d(TAG, "updateUserChats: " + chatObjectMap.get("date"));
 //                            Log.d(TAG, "updateUserChats: " + chatObjectMap.get("latest_message"));
 //                            Log.d(TAG, "updateUserChats: " + chatObjectMap.get("user_name"));
-//                            Log.d(TAG, "updateUserChats: " + chatObjectMap.get("user_profile_pic"));
+//                            Log.d(TAG, "updateUserChats: user profile pic: " + chatObjectMap.get("user_profile_pic"));
                             ChatData chatData = new ChatData();
                             if (chatData != null) {
                                 chatData.setChatID(key);
@@ -230,7 +228,7 @@ public class FireBaseDBHelper {
 
                 realm.commitTransaction();
                 if (listener != null) {
-                    Log.d(TAG, "updateC: LISTENER CALLED IN UPDATEUSERCHATS");
+                    Log.d(TAG, "updateC: LISTENER CALLED IN UPDATE USER CHATS");
                     listener.onDatabaseUpdate();
                 }
             }
@@ -392,8 +390,8 @@ public class FireBaseDBHelper {
         }
     }
 
-    public void addUserToChats(String userName, String contactID, String chatID) {
-        DatabaseReference databaseReference = database.getReference(getLocalResources().getString(R.string.user_specific_info))
+    public void addUserToChats(String userName, String contactID, String chatID, Context context) {
+        DatabaseReference databaseReference = database.getReference(context.getResources().getString(R.string.user_specific_info))
                 .child(contactID);
 
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -402,20 +400,20 @@ public class FireBaseDBHelper {
                 final Object picture = snapshot.getValue();
                 final Map<String, Object> picMap = (Map<String, Object>) picture;
 
-                String pictureUrl = (String) picMap.get(getLocalResources().getString(R.string.profile_picture));
-                DatabaseReference userRef = database.getReference(getLocalResources().getString(R.string.user_chats))
+                String pictureUrl = (String) picMap.get(context.getResources().getString(R.string.profile_picture));
+                DatabaseReference userRef = database.getReference(context.getResources().getString(R.string.user_chats))
                         .child(user.getUid())
                         .child(chatID);
 
                 Map<String, Object> userChatMap = new HashMap<>();
-                userChatMap.put(getLocalResources().getString(R.string.receiver), userName);
-                userChatMap.put(getLocalResources().getString(R.string.receiverID), contactID);
-                userChatMap.put(getLocalResources().getString(R.string.user_profile_pic), pictureUrl);
+                userChatMap.put(context.getResources().getString(R.string.receiver), userName);
+                userChatMap.put(context.getResources().getString(R.string.receiverID), contactID);
+                userChatMap.put(context.getResources().getString(R.string.user_profile_pic), pictureUrl);
                 userRef.updateChildren(userChatMap);
 
-                DatabaseReference chatRef = database.getReference(getLocalResources().getString(R.string.chats))
+                DatabaseReference chatRef = database.getReference(context.getResources().getString(R.string.chats))
                         .child(chatID)
-                        .child(getLocalResources().getString(R.string.users));
+                        .child(context.getResources().getString(R.string.users));
 
                 Map<String, Object> chatMap = new HashMap<>();
                 chatMap.put(user.getUid(), user.getDisplayName());
@@ -444,7 +442,7 @@ public class FireBaseDBHelper {
     }
 
     public void checkForUser1() {
-        DatabaseReference userRef = ref.child(getLocalResources().getString(R.string.users));
+        DatabaseReference userRef = ref.child(activity.getResources().getString(R.string.users));
         userRef.orderByValue().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -467,9 +465,9 @@ public class FireBaseDBHelper {
 
     private void getContact(String userID) {
 
-        DatabaseReference userSpecificInfoRef = ref.child(getLocalResources().getString(R.string.user_specific_info))
+        DatabaseReference userSpecificInfoRef = ref.child(activity.getResources().getString(R.string.user_specific_info))
                 .child(userID)
-                .child(getLocalResources().getString(R.string.phone_number));
+                .child(activity.getResources().getString(R.string.phone_number));
 
         userSpecificInfoRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

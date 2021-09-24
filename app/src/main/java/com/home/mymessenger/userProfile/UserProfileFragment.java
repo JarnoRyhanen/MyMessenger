@@ -168,7 +168,7 @@ public class UserProfileFragment extends Fragment {
 
             String imageID = UUID.randomUUID().toString();
 
-            StorageReference strReference = storageReference.child(R.string.users + "/" + user.getUid()
+            StorageReference strReference = storageReference.child(getResources().getString(R.string.users) + "/" + user.getUid()
                     + "/profile/" + imageID);
 
             strReference.putFile(imageUri)
@@ -187,7 +187,7 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void downloadImage(String imageID) {
-        StorageReference reference = storageReference.child(R.string.users + "/" + user.getUid() + "/profile/" + imageID);
+        StorageReference reference = storageReference.child(getResources().getString(R.string.users) + "/" + user.getUid() + "/profile/" + imageID);
 
         reference.getDownloadUrl().addOnSuccessListener(uri -> {
             Log.d(TAG, "onSuccess: " + uri);

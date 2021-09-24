@@ -185,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
 //        updateUserActivityStatus("online");
     }
 
-
     @Override
     public void onDatabaseUpdate() {
         updateContent();

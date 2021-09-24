@@ -17,6 +17,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.home.mymessenger.R;
 import com.home.mymessenger.data.InboxData;
+import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
 
 import java.util.HashMap;
@@ -82,10 +83,12 @@ public class InboxRecyclerViewAdapter extends RecyclerView.Adapter<InboxRecycler
             chatMap.put(user.getUid(), user.getDisplayName());
             chatRef.updateChildren(chatMap);
 
-            deleteItem(position);
+            addToContacts(inboxData.getSenderID(), inboxData.getSenderName());
             deleteItemFromFireBase(inboxData.getMessageID());
             deleteItemFromRealm(inboxData.getMessageID());
-            addToContacts(inboxData.getSenderID(), inboxData.getSenderName());
+            deleteItem(position);
+
+            FireBaseDBHelper.getInstance().listerForUserChatChange();
         });
 
     }

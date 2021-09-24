@@ -58,7 +58,6 @@ public class CustomDialog extends AppCompatDialogFragment {
         builder.setView(view)
                 .setTitle("")
                 .setNegativeButton("No", (dialog, which) -> {
-
                 })
                 .setPositiveButton("Yes", (dialog, which) -> {
                     isUserInContacts();
@@ -90,6 +89,7 @@ public class CustomDialog extends AppCompatDialogFragment {
                             Toast.makeText(getActivity(), getResources().getString(R.string.you_already_have_this_user),
                                     Toast.LENGTH_SHORT).show();
                         } else {
+                            Toast.makeText(getActivity(), "friend request sent", Toast.LENGTH_SHORT).show();
                             performUserQuery();
                         }
 
@@ -123,7 +123,7 @@ public class CustomDialog extends AppCompatDialogFragment {
         contactsMap.put(contact.getContactID(), contact.getContactName());
         userRef.updateChildren(contactsMap);
 
-        fireBaseDBHelper.addUserToChats(contact.getContactName(), contact.getContactID(), chatID);
+        fireBaseDBHelper.addUserToChats(contact.getContactName(), contact.getContactID(), chatID, getActivity());
     }
 
     private void updateContactInbox(ContactData contact, String chatID) {

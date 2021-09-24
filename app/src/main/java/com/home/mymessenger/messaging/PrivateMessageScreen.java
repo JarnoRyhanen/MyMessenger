@@ -309,9 +309,9 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
     private void loadChat() {
         chatID = getIntent().getStringExtra(IntentKeys.CHAT_ID);
         chatData = realm.where(ChatData.class).equalTo("chatID", chatID).findFirst();
-        userNameTextView.setText(chatData.getReceiver());
         userData = realm.where(UserData.class).equalTo("userID", chatData.getReceiverID()).findFirst();
         if (userData != null) {
+            userNameTextView.setText(userData.getUserName());
             userStatusTextView.setText(userData.getUserStatus());
             Picasso.get().load(userData.getUserProfilePicture()).fit().centerInside().into(shapeableImageView);
         }
@@ -319,7 +319,6 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
             Log.d(TAG, "loadChat: " + isRan);
             startFireBaseListening();
         }
-
     }
 
     private void startFireBaseListening() {
