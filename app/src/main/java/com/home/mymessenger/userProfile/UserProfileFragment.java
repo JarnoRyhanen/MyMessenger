@@ -34,7 +34,6 @@ import com.home.mymessenger.data.InboxData;
 import com.home.mymessenger.data.UserData;
 import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
-import com.home.mymessenger.loginsignin.LogInActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -126,13 +125,10 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void loadUserStatusAndUserName() {
-        Log.d(TAG, "updateUserStatus: e");
         if (user != null) {
-            Log.d(TAG, "loadUserStatusAndUserName: " + user.getDisplayName());
             userNameEditText.setText(user.getDisplayName());
             if (userData != null) {
                 String status = userData.getUserStatus();
-                Log.d(TAG, "updateUserStatus new status is: " + status);
                 statusEditText.setText(status);
             }
         }
@@ -160,7 +156,6 @@ public class UserProfileFragment extends Fragment {
         if (resultCode == RESULT_OK && requestCode == PICK_IMAGE) {
             imageUri = data.getData();
             profilePicture.setImageURI(imageUri);
-            Log.d(TAG, "onActivityResult: " + imageUri);
             uploadImage();
         }
     }
@@ -173,7 +168,8 @@ public class UserProfileFragment extends Fragment {
 
             String imageID = UUID.randomUUID().toString();
 
-            StorageReference strReference = storageReference.child("users" + "/" + user.getUid() + "/profile/" + imageID);
+            StorageReference strReference = storageReference.child(R.string.users + "/" + user.getUid()
+                    + "/profile/" + imageID);
 
             strReference.putFile(imageUri)
                     .addOnSuccessListener(taskSnapshot -> {
@@ -191,7 +187,7 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void downloadImage(String imageID) {
-        StorageReference reference = storageReference.child("users" + "/" + user.getUid() + "/profile/" + imageID);
+        StorageReference reference = storageReference.child(R.string.users + "/" + user.getUid() + "/profile/" + imageID);
 
         reference.getDownloadUrl().addOnSuccessListener(uri -> {
             Log.d(TAG, "onSuccess: " + uri);
@@ -202,10 +198,11 @@ public class UserProfileFragment extends Fragment {
 
     private void updateProfilePicture(Uri uri) {
         if (user != null) {
-            DatabaseReference databaseReference = ref.child("user_specific_info").child(user.getUid());
+            DatabaseReference databaseReference = ref.child(getResources().getString(R.string.user_specific_info))
+                    .child(user.getUid());
 
             Map<String, Object> userObjectMap = new HashMap<>();
-            userObjectMap.put("profile_picture", uri.toString());
+            userObjectMap.put(getResources().getString(R.string.profile_picture), uri.toString());
             databaseReference.updateChildren(userObjectMap);
         }
     }

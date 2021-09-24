@@ -44,12 +44,9 @@ public class ChangeUserNameFragment extends Fragment {
         userNameEditText.setText(user.getDisplayName());
 
         saveButton = view.findViewById(R.id.change_user_name_fragment_save_button);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UserNameRunnable runnable = new UserNameRunnable();
-                new Thread(runnable).start();
-            }
+        saveButton.setOnClickListener(v -> {
+            UserNameRunnable runnable = new UserNameRunnable();
+            new Thread(runnable).start();
         });
         return view;
     }
@@ -68,18 +65,17 @@ public class ChangeUserNameFragment extends Fragment {
 
             if (user != null) {
                 user.updateProfile(profileUpdates).addOnCompleteListener(task -> {
-                    DatabaseReference userRef = ref.child("user_specific_info").child(user.getUid());
+                    DatabaseReference userRef = ref.child(getResources().getString(R.string.user_specific_info))
+                            .child(user.getUid());
+
                     Map<String, Object> userMap = new HashMap<>();
-                    userMap.put("user_name", user.getDisplayName());
-                    userRef.updateChildren(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            closeKeyboard(saveButton);
-                            getParentFragmentManager().popBackStack();
-                        }
+                    userMap.put(getResources().getString(R.string.user_name), user.getDisplayName());
+                    userRef.updateChildren(userMap).addOnCompleteListener(task1 -> {
+                        closeKeyboard(saveButton);
+                        getParentFragmentManager().popBackStack();
                     });
 
-                    DatabaseReference userSpecificInfoRef = ref.child("users");
+                    DatabaseReference userSpecificInfoRef = ref.child(getResources().getString(R.string.users));
                     Map<String, Object> userSpecificInfoMap = new HashMap<>();
                     userSpecificInfoMap.put(user.getUid(), user.getDisplayName());
                     userSpecificInfoRef.updateChildren(userSpecificInfoMap);

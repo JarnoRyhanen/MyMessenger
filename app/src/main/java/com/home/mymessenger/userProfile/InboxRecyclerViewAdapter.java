@@ -55,49 +55,46 @@ public class InboxRecyclerViewAdapter extends RecyclerView.Adapter<InboxRecycler
 
         holder.textView.setText(inboxData.getMessage());
 
-        holder.cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: cancel pressed on " + inboxData.getMessage());
+        holder.cancel.setOnClickListener(v -> {
+            Log.d(TAG, "onClick: cancel pressed on " + inboxData.getMessage());
 
-                deleteItem(position);
-                deleteItemFromFireBase(inboxData.getMessageID());
-                deleteItemFromRealm(inboxData.getMessageID());
-            }
+            deleteItem(position);
+            deleteItemFromFireBase(inboxData.getMessageID());
+            deleteItemFromRealm(inboxData.getMessageID());
         });
 
-        holder.check.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: chatting accepted with user " + inboxData.getSenderID());
-                Log.d(TAG, "onClick: chat id:   " + inboxData.getChatID());
+        holder.check.setOnClickListener(v -> {
+            DatabaseReference userChatRef = ref.child(context.getResources().getString(R.string.user_chats))
+                    .child(user.getUid())
+                    .child(inboxData.getChatID());
 
-                DatabaseReference userChatRef = ref.child("user_chats").child(user.getUid()).child(inboxData.getChatID());
-                Map<String, Object> userChatMap = new HashMap<>();
-                userChatMap.put("receiverID", inboxData.getSenderID());
-                userChatMap.put("receiver", inboxData.getSenderName());
-                userChatMap.put("user_profile_pic", inboxData.getSenderProfilePic());
-                userChatRef.updateChildren(userChatMap);
+            Map<String, Object> userChatMap = new HashMap<>();
+            userChatMap.put(context.getResources().getString(R.string.receiverID), inboxData.getSenderID());
+            userChatMap.put(context.getResources().getString(R.string.receiver), inboxData.getSenderName());
+            userChatMap.put(context.getResources().getString(R.string.user_profile_pic), inboxData.getSenderProfilePic());
+            userChatRef.updateChildren(userChatMap);
 
-                DatabaseReference chatRef = database.getReference("chats")
-                        .child(inboxData.getChatID())
-                        .child("users");
+            DatabaseReference chatRef = database.getReference(context.getResources().getString(R.string.chats))
+                    .child(inboxData.getChatID())
+                    .child(context.getResources().getString(R.string.users));
 
-                Map<String, Object> chatMap = new HashMap<>();
-                chatMap.put(user.getUid(), user.getDisplayName());
-                chatRef.updateChildren(chatMap);
+            Map<String, Object> chatMap = new HashMap<>();
+            chatMap.put(user.getUid(), user.getDisplayName());
+            chatRef.updateChildren(chatMap);
 
-                deleteItem(position);
-                deleteItemFromFireBase(inboxData.getMessageID());
-                deleteItemFromRealm(inboxData.getMessageID());
-                addToContacts(inboxData.getSenderID(), inboxData.getSenderName());
-            }
+            deleteItem(position);
+            deleteItemFromFireBase(inboxData.getMessageID());
+            deleteItemFromRealm(inboxData.getMessageID());
+            addToContacts(inboxData.getSenderID(), inboxData.getSenderName());
         });
 
     }
 
     private void addToContacts(String senderID, String senderName) {
-        DatabaseReference userRef = ref.child("user_specific_info").child(user.getUid()).child("contacts");
+        DatabaseReference userRef = ref.child(context.getResources().getString(R.string.user_specific_info))
+                .child(user.getUid())
+                .child(context.getResources().getString(R.string.contacts));
+
         Map<String, Object> contactsMap = new HashMap<>();
         contactsMap.put(senderID, senderName);
         userRef.updateChildren(contactsMap);
@@ -111,7 +108,9 @@ public class InboxRecyclerViewAdapter extends RecyclerView.Adapter<InboxRecycler
     }
 
     private void deleteItemFromFireBase(String messageID) {
-        DatabaseReference inboxRef = ref.child("user_inbox").child(user.getUid()).child(messageID);
+        DatabaseReference inboxRef = ref.child(context.getResources().getString(R.string.user_inbox))
+                .child(user.getUid())
+                .child(messageID);
         inboxRef.removeValue();
     }
 

@@ -1,8 +1,6 @@
 package com.home.mymessenger.contacts;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +25,8 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
     private static final String TAG = "ContactRecyclerAdapter";
 
     private final Context context;
-    private List<ContactData> contactDataList = new ArrayList<>();
-    private List<ContactData> contactDataListFull = new ArrayList<>();
+    private List<ContactData> contactDataList;
+    private List<ContactData> contactDataListFull;
 
     public ContactRecyclerAdapter(Context context, List<ContactData> list) {
         this.context = context;

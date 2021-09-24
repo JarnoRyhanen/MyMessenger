@@ -8,13 +8,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,7 +18,6 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.home.mymessenger.R;
-import com.home.mymessenger.data.UserData;
 import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.mainactivity.MainActivity;
 
@@ -70,11 +65,11 @@ public class SignInActivity extends AppCompatActivity {
     private boolean validateTextInput(TextInputLayout... textInputLayouts) {
         String textInput = textInputLayouts[0].getEditText().getText().toString().trim();
         if (textInput.isEmpty()) {
-            textInputLayouts[0].setError("Field can't be empty");
+            textInputLayouts[0].setError(getResources().getString(R.string.fui_required_field));
             return false;
         } else if (textInputLayouts[0] == textInputEmail && !Patterns.EMAIL_ADDRESS.matcher(textInput).matches()) {
             Log.d(TAG, "validateTextInput: " + textInputLayouts[0]);
-            textInputLayouts[0].setError("Please enter a valid email address");
+            textInputLayouts[0].setError(getResources().getString(R.string.fui_invalid_email_address));
             return false;
         } else {
             textInputLayouts[0].setError(null);
@@ -108,17 +103,19 @@ public class SignInActivity extends AppCompatActivity {
         FirebaseUser user = auth.getCurrentUser();
 
         Map<String, Object> userObjectMap = new HashMap<>();
-        userObjectMap.put("user_name", userName);
-        userObjectMap.put("phone_number", phoneNumber);
-        userObjectMap.put("current_status", "no status");
-        userObjectMap.put("activity_status", "offline");
+        userObjectMap.put(getResources().getString(R.string.user_name), userName);
+        userObjectMap.put(getResources().getString(R.string.phone_number), phoneNumber);
+        userObjectMap.put(getResources().getString(R.string.current_status), "no status");
+        userObjectMap.put(getResources().getString(R.string.activity_status), "offline");
 
-        DatabaseReference userRef = ref.child("users");
+        DatabaseReference userRef = ref.child(getResources().getString(R.string.users));
         Map<String, Object> userMap = new HashMap<>();
         userMap.put(user.getUid(), userName);
         userRef.updateChildren(userMap);
 
-        DatabaseReference userSpecificInfoRef = ref.child("user_specific_info").child(user.getUid());
+        DatabaseReference userSpecificInfoRef = ref.child(getResources().getString(R.string.user_specific_info))
+                .child(user.getUid());
+
         userSpecificInfoRef.setValue(userObjectMap).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 setFirebaseUserName(userName);
@@ -170,25 +167,9 @@ public class SignInActivity extends AppCompatActivity {
                 });
     }
 
-    public void signOut() {
-        AuthUI.getInstance().delete(this).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                //todo do something when the user signs out
-            }
-        });
-    }
-
     private void startMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
-//        FireBaseDBHelper.getInstance().setListener(() -> {
-//            startActivity(new Intent(getApplicationContext(), MainActivity.class));
-//            finish();
-//        });
-//        FireBaseDBHelper.getInstance().listerForUserChatChange();
     }
-
-
 }

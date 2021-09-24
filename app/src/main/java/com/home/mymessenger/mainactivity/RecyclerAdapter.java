@@ -182,18 +182,22 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
 
     private void lastMessage(TextView latestMessage, TextView latestMessageDate) {
 
+
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-        reference.child("user_chats").child(user.getUid()).child(chatID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    final Object snapShotValue = snapshot.getValue();
+        reference.child(context.getResources().getString(R.string.user_chats))
+                .child(user.getUid())
+                .child(chatID)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            final Object snapShotValue = snapshot.getValue();
 
-                    Map<String, Object> lastMessageDataMap = (Map<String, Object>) snapShotValue;
-                    lastMessageString = (String) lastMessageDataMap.get("latest_message");
-                    latestMessage.setText(lastMessageString);
+                            Map<String, Object> lastMessageDataMap = (Map<String, Object>) snapShotValue;
+                            lastMessageString = (String) lastMessageDataMap.get(context.getResources().getString(R.string.latest_message));
+                            latestMessage.setText(lastMessageString);
 
-                    String lastMsgDate = (String) lastMessageDataMap.get("latest_message_date");
+                            String lastMsgDate = (String) lastMessageDataMap.get(context.getResources().getString(R.string.latest_message_date));
                     latestMessageDate.setText(lastMsgDate);
                 }
             }

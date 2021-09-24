@@ -33,12 +33,7 @@ public class SignOutDialogFragment extends AppCompatDialogFragment {
     private void signOut() {
         FirebaseAuth.getInstance().signOut();
 
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                realm.deleteAll();
-            }
-        });
+        realm.executeTransaction(realm -> realm.deleteAll());
 
         Intent intent = new Intent(getActivity(), LogInActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);

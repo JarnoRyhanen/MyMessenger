@@ -4,7 +4,6 @@
     <!-- Strings used for fragments for navigation -->
 
     <string name="date">date</string>
-    <string name="seppo">Seppo</string>
     <string name="username">Username</string>
     <string name="status">Status</string>
     <string name="search">Search</string>
@@ -12,4 +11,51 @@
     <string name="reset_password">Reset password</string>
     <string name="log_in">Log in</string>
     <string name="delete_message">Delete message</string>
+    <string name="permission_denied">Permission Denied</string>
+
+    <!--Strings in Firebase Db Helper    -->
+    <string name="user_specific_info">user_specific_info</string>
+    <string name="user_chats">user_chats</string>
+    <string name="chats">chats</string>
+    <string name="contacts">contacts</string>
+    <string name="users">users</string>
+    <string name="messages">messages</string>
+
+    <string name="user_name">user_name</string>
+    <string name="profile_picture">profile_picture</string>
+    <string name="current_status">current_status</string>
+    <string name="activity_status">activity_status</string>
+    <string name="phone_number">phone_number</string>
+
+    <string name="latest_message_date">latest_message_date</string>
+    <string name="latest_message">latest_message</string>
+    <string name="user_profile_pic">user_profile_pic</string>
+    <string name="receiver">receiver</string>
+    <string name="receiverID">receiverID</string>
+
+    <string name="message_content">message_content</string>
+    <string name="sender">sender</string>
+    <string name="message_image">message_image</string>
+    <string name="chatID">chatID</string>
+    <string name="senderID">senderID</string>
+    <string name="sender_name">sender_name</string>
+    <string name="sender_profile_pic">sender_profile_pic</string>
+
+    <string name="latest_message_and_date">latest_message_and_date</string>
+
+    <string name="user_inbox">user_inbox</string>
+
+    <!--  Strings used in login and sign in  -->
+    <string name="field_cannot_be_empty">Field can\'t be empty</string>
+    <string name="please_enter_a_valid_email_address">Please enter a valid email address</string>
+    <string name="something_went_wrong">Something went wrong, please try again</string>
+
+    <!--  Strings in messaging  -->
+    <string name="private_message_screen_package_name">com.home.mymessenger.messaging</string>
+    <string name="message_removed">Message Removed</string>
+    <string name="you_cannot_delete_other_peoples_messages">You cannot delete other peoples messages</string>
+
+    <!-- Strings in  CustomDialog-->
+    <string name="you_already_have_this_user">You already have this user in your chats</string>
+
 </resources>

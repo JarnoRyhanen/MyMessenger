@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.home.mymessenger.R;
 import com.home.mymessenger.data.ChatData;
 import com.home.mymessenger.dp.RealmHelper;
 
@@ -67,7 +68,7 @@ public class DeleteChatDialogFragment extends AppCompatDialogFragment {
 
     private void deleteChat(String chatID) {
         DatabaseReference deleteFromChatRef = FirebaseDatabase.getInstance().getReference()
-                .child("user_chats")
+                .child(getResources().getString(R.string.user_chats))
                 .child(user.getUid())
                 .child(chatID);
 
@@ -76,9 +77,9 @@ public class DeleteChatDialogFragment extends AppCompatDialogFragment {
 
     private void deleteContact(String contactID) {
         DatabaseReference deleteFromContactRef = FirebaseDatabase.getInstance().getReference()
-                .child("user_specific_info")
+                .child(getResources().getString(R.string.user_specific_info))
                 .child(user.getUid())
-                .child("contacts")
+                .child(getResources().getString(R.string.contacts))
                 .child(contactID);
 
         deleteFromContactRef.removeValue();

@@ -49,22 +49,4 @@
 
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-<!--    <Button-->
-<!--        android:id="@+id/soita"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_centerInParent="true"-->
-<!--        android:onClick="onClick"-->
-<!--        android:text="soita"-->
-<!--        />-->
-
-<!--    <EditText-->
-<!--        android:id="@+id/numero"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@id/soita"-->
-<!--        android:layout_centerHorizontal="true"-->
-<!--        android:hint="number"-->
-<!--        />-->
 </RelativeLayout>

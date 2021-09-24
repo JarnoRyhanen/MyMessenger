@@ -71,7 +71,7 @@ public class SearchForContactsActivity extends AppCompatActivity {
         if (requestCode == REQUEST_CONTACT && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             checkForUser();
         } else {
-            Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
             checkForContactPermission();
         }
     }

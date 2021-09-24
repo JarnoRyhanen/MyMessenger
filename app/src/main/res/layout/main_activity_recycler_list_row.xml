@@ -50,7 +50,7 @@
         android:layout_marginStart="20dp"
         android:layout_toEndOf="@id/profile_icon"
         android:fontFamily="sans-serif"
-        android:text="@string/seppo"
+        android:text="seppo"
         android:textColor="@color/black"
         android:textSize="24sp"
         />

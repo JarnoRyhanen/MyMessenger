@@ -28,7 +28,6 @@ import com.home.mymessenger.contacts.SearchForContactsActivity;
 import com.home.mymessenger.data.ChatData;
 import com.home.mymessenger.dp.FireBaseDBHelper;
 import com.home.mymessenger.dp.RealmHelper;
-import com.home.mymessenger.userProfile.SignOutDialogFragment;
 import com.home.mymessenger.userProfile.UserProfileActivity;
 
 import java.util.ArrayList;
@@ -46,11 +45,11 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
     private RecyclerAdapter adapter;
     private RecyclerView recyclerView;
     private FloatingActionButton floatingActionButton;
-    private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    private final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
     private final FireBaseDBHelper helper = FireBaseDBHelper.getInstance();
 
-    private Realm realm = RealmHelper.getInstance().getRealm();
+    private final Realm realm = RealmHelper.getInstance().getRealm();
 
     private final List<ChatData> chatDataList = new ArrayList<>();
 
@@ -59,25 +58,19 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
 
     private int mPosition;
 
+    //TODO  CONVERT ALL STRINGS TO RESOURCES
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
         buildRecyclerView();
-
-        Log.d(TAG, "onCreate: internet connection: " + isNetworkConnected());
-        Log.d(TAG, "onCreate: USER ID   " + user.getUid());
-
-        Log.d(TAG, "onCreate: CURRENT USER IS: " + user.getDisplayName());
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         floatingActionButton = findViewById(R.id.fab);
         if (!isRan && isNetworkConnected()) {
-            Log.d(TAG, "onCreate: i am called");
             startFireBaseListening();
             isRan = true;
         } else {
@@ -93,15 +86,8 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
         adapter = new RecyclerAdapter(MainActivity.this, isActive);
         recyclerView.setAdapter(adapter);
 
-        adapter.setOnTouchListener(new RecyclerAdapter.OnTouchListener() {
-            @Override
-            public void onTouch(int position) {
-                mPosition = position;
-            }
-        });
+        adapter.setOnTouchListener(position -> mPosition = position);
     }
-
-    //todo delete user from chats
 
     private boolean isNetworkConnected() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -120,17 +106,19 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
 
     private void getUserChats() {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-        reference.child("user_chats").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        helper.listenForLatestMessage(dataSnapshot.getKey());
+        reference.child(getResources().getString(R.string.user_chats))
+                .child(user.getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                                helper.listenForLatestMessage(dataSnapshot.getKey());
+                            }
+                        }
                     }
-                }
-            }
 
-            @Override
+                    @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 error.getMessage();
             }
@@ -178,8 +166,10 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
         Map<String, Object> activityStatusMap = new HashMap<>();
-        activityStatusMap.put("activity_status", status);
-        reference.child("user_specific_info").child(user.getUid()).updateChildren(activityStatusMap);
+        activityStatusMap.put(getResources().getString(R.string.activity_status), status);
+        reference.child(getResources().getString(R.string.user_specific_info))
+                .child(user.getUid())
+                .updateChildren(activityStatusMap);
     }
 
     @Override

@@ -64,7 +64,7 @@ public class EditImageActivity extends AppCompatActivity {
 
     }
 
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
+    private final View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if (v == sendMessageButton) {
@@ -89,7 +89,7 @@ public class EditImageActivity extends AppCompatActivity {
 
             String imageID = UUID.randomUUID().toString();
 
-            StorageReference strReference = storageReference.child("chats/" + chatID + "/" + imageID);
+            StorageReference strReference = storageReference.child(getResources().getString(R.string.chats) + "/" + chatID + "/" + imageID);
 
             strReference.putFile(imageUri)
                     .addOnSuccessListener(taskSnapshot -> {
@@ -108,7 +108,7 @@ public class EditImageActivity extends AppCompatActivity {
     }
 
     private void downloadImage(String imageID) {
-        StorageReference reference = storageReference.child("chats/" + chatID + "/" + imageID);
+        StorageReference reference = storageReference.child(getResources().getString(R.string.chats) + "/" + chatID + "/" + imageID);
 
         reference.getDownloadUrl().addOnSuccessListener(uri -> {
             Log.d(TAG, "onSuccess: " + uri);
@@ -125,12 +125,17 @@ public class EditImageActivity extends AppCompatActivity {
         String date = getDate();
 
         Map<String, Object> messageMap = new HashMap<>();
-        messageMap.put("message_content", messageContent.trim());
-        messageMap.put("sender", sender);
-        messageMap.put("receiver", receiver);
-        messageMap.put("date", date);
-        messageMap.put("message_image", uri.toString());
-        reference.child("chats").child(chatID).child("messages").push().setValue(messageMap);
+        messageMap.put(getResources().getString(R.string.message_content), messageContent.trim());
+        messageMap.put(getResources().getString(R.string.sender), sender);
+        messageMap.put(getResources().getString(R.string.receiver), receiver);
+        messageMap.put(getResources().getString(R.string.date), date);
+        messageMap.put(getResources().getString(R.string.message_image), uri.toString());
+
+        reference.child(getResources().getString((R.string.chats)))
+                .child(chatID)
+                .child(getResources().getString(R.string.messages))
+                .push()
+                .setValue(messageMap);
 
         updateLatestMessageAndDate(messageContent, date);
 
@@ -140,10 +145,13 @@ public class EditImageActivity extends AppCompatActivity {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
         Map<String, Object> latestMessageAndDateMap = new HashMap<>();
-        latestMessageAndDateMap.put("latest_message", messageContent);
-        latestMessageAndDateMap.put("latest_message_date", date);
+        latestMessageAndDateMap.put(getResources().getString(R.string.latest_message), messageContent);
+        latestMessageAndDateMap.put(getResources().getString(R.string.latest_message_date), date);
 
-        reference.child("chats").child(chatID).child("latest_message_and_date").updateChildren(latestMessageAndDateMap);
+        reference.child(getResources().getString(R.string.chats))
+                .child(chatID)
+                .child(getResources().getString(R.string.latest_message_and_date))
+                .updateChildren(latestMessageAndDateMap);
     }
 
 

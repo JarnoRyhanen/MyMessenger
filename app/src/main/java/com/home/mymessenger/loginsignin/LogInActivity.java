@@ -88,11 +88,11 @@ public class LogInActivity extends AppCompatActivity {
     private boolean validateTextInput(TextInputLayout... textInputLayouts) {
         String textInput = textInputLayouts[0].getEditText().getText().toString().trim();
         if (textInput.isEmpty()) {
-            textInputLayouts[0].setError("Field can't be empty");
+            textInputLayouts[0].setError(getResources().getString(R.string.fui_required_field));
             return false;
         } else if (textInputLayouts[0] == emailInputLayout && !Patterns.EMAIL_ADDRESS.matcher(textInput).matches()) {
             Log.d(TAG, "validateTextInput: " + textInputLayouts[0]);
-            textInputLayouts[0].setError("Please enter a valid email address");
+            textInputLayouts[0].setError(getResources().getString(R.string.fui_invalid_email_address));
             return false;
         } else {
             textInputLayouts[0].setError(null);
@@ -111,10 +111,6 @@ public class LogInActivity extends AppCompatActivity {
     }
 
     private void startMainActivity() {
-//        FireBaseDBHelper.getInstance().setListener(() -> {
-//            startActivity(new Intent(getApplicationContext(), MainActivity.class));
-//            finish();
-//        });
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();

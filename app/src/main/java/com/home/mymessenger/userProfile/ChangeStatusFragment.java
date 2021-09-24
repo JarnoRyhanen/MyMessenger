@@ -11,8 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
@@ -48,12 +46,7 @@ public class ChangeStatusFragment extends Fragment {
         statusEditText = view.findViewById(R.id.change_status_fragment_text_input_edit_text);
         saveButton = view.findViewById(R.id.change_status_fragment_save_button);
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveStatus();
-            }
-        });
+        saveButton.setOnClickListener(v -> saveStatus());
 
         if (user != null) {
             UserData userData = realm.where(UserData.class).equalTo("userID", user.getUid()).findFirst();
@@ -68,17 +61,17 @@ public class ChangeStatusFragment extends Fragment {
     private void saveStatus() {
         CharSequence newStatus = statusEditText.getText();
 
-        DatabaseReference statusRef = ref.child("user_specific_info").child(user.getUid());
+        DatabaseReference statusRef = ref.child(getResources().getString(R.string.user_specific_info))
+                .child(user.getUid());
+
         Map<String, Object> statusMap = new HashMap<>();
-        statusMap.put("current_status", newStatus.toString());
-        statusRef.updateChildren(statusMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                closeKeyboard(saveButton);
-                getParentFragmentManager().popBackStack();
-            }
+        statusMap.put(getResources().getString(R.string.current_status), newStatus.toString());
+        statusRef.updateChildren(statusMap).addOnCompleteListener(task -> {
+            closeKeyboard(saveButton);
+            getParentFragmentManager().popBackStack();
         });
     }
+
     private void closeKeyboard(View v) {
         InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);

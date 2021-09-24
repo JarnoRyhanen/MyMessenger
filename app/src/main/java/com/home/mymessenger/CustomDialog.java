@@ -70,7 +70,10 @@ public class CustomDialog extends AppCompatDialogFragment {
     }
 
     private void isUserInContacts() {
-        DatabaseReference reference = ref.child("user_specific_info").child(user.getUid()).child("contacts");
+        DatabaseReference reference = ref.child(getResources().getString(R.string.user_specific_info))
+                .child(user.getUid())
+                .child(getResources().getString(R.string.contacts));
+
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -84,11 +87,10 @@ public class CustomDialog extends AppCompatDialogFragment {
                         contactIDList.addAll(contactsMap.keySet());
 
                         if (contactIDList.contains(contactID)) {
-                            Toast.makeText(getActivity(), "You already have this user in your chats", Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, "onDataChange: " + contactData.getContactName() + " is in list");
+                            Toast.makeText(getActivity(), getResources().getString(R.string.you_already_have_this_user),
+                                    Toast.LENGTH_SHORT).show();
                         } else {
                             performUserQuery();
-                            Log.d(TAG, "onDataChange: " + contactID + " is not in list");
                         }
 
                     }
@@ -113,7 +115,10 @@ public class CustomDialog extends AppCompatDialogFragment {
     }
 
     private void addToChats(ContactData contact, String chatID) {
-        DatabaseReference userRef = ref.child("user_specific_info").child(user.getUid()).child("contacts");
+        DatabaseReference userRef = ref.child(getResources().getString(R.string.user_specific_info))
+                .child(user.getUid())
+                .child(getResources().getString(R.string.contacts));
+
         Map<String, Object> contactsMap = new HashMap<>();
         contactsMap.put(contact.getContactID(), contact.getContactName());
         userRef.updateChildren(contactsMap);
@@ -123,14 +128,16 @@ public class CustomDialog extends AppCompatDialogFragment {
 
     private void updateContactInbox(ContactData contact, String chatID) {
         UserData userData = realm.where(UserData.class).equalTo("userID", user.getUid()).findFirst();
-        DatabaseReference inboxRef = ref.child("user_inbox").child(contact.getContactID()).child(UUID.randomUUID().toString());
+        DatabaseReference inboxRef = ref.child(getResources().getString(R.string.user_inbox))
+                .child(contact.getContactID())
+                .child(UUID.randomUUID().toString());
 
         Map<String, Object> inboxMap = new HashMap<>();
-        inboxMap.put("senderID", user.getUid());
-        inboxMap.put("message_content", String.format("Do you want to accept chatting offer from %s", user.getDisplayName()));
-        inboxMap.put("chatID", chatID);
-        inboxMap.put("sender_name", user.getDisplayName());
-        inboxMap.put("sender_profile_pic", userData.getUserProfilePicture());
+        inboxMap.put(getResources().getString(R.string.senderID), user.getUid());
+        inboxMap.put(getResources().getString(R.string.message_content), String.format("Do you want to accept chatting offer from %s", user.getDisplayName()));
+        inboxMap.put(getResources().getString(R.string.chatID), chatID);
+        inboxMap.put(getResources().getString(R.string.sender_name), user.getDisplayName());
+        inboxMap.put(getResources().getString(R.string.sender_profile_pic), userData.getUserProfilePicture());
 
         inboxRef.updateChildren(inboxMap);
     }

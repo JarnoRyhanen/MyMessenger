@@ -16,8 +16,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -30,8 +28,6 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -124,28 +120,22 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
     private void activityResultLaunchers() {
         galleryResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                            Uri uri = result.getData().getData();
-                            Intent editImageIntent = new Intent(PrivateMessageScreen.this, EditImageActivity.class);
-                            setIntentExtras(editImageIntent, uri);
-                        }
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        Intent editImageIntent = new Intent(PrivateMessageScreen.this, EditImageActivity.class);
+                        setIntentExtras(editImageIntent, uri);
                     }
                 });
 
         cameraResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == RESULT_OK) {
-                            Uri uri = photoUri;
-                            Log.d(TAG, "onActivityResult: uri  " + uri);
-                            Intent editImageIntent = new Intent(PrivateMessageScreen.this, EditImageActivity.class);
-                            setIntentExtras(editImageIntent, uri);
-                        }
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Uri uri = photoUri;
+                        Log.d(TAG, "onActivityResult: uri  " + uri);
+                        Intent editImageIntent = new Intent(PrivateMessageScreen.this, EditImageActivity.class);
+                        setIntentExtras(editImageIntent, uri);
                     }
                 });
     }
@@ -192,7 +182,7 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
             Intent openCameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
             photoUri = FileProvider.getUriForFile(this,
-                    "com.home.mymessenger.messaging",
+                    getResources().getString(R.string.private_message_screen_package_name),
                     photoFile);
             openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
 
@@ -229,12 +219,7 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         adapter.setHasStableIds(true);
         privateMessageRecycler.setAdapter(adapter);
 
-        adapter.setOnTouchListener(new PrivateMessageRecyclerAdapter.OnTouchListener() {
-            @Override
-            public void onTouch(int position) {
-                mPosition = position;
-            }
-        });
+        adapter.setOnTouchListener(position -> mPosition = position);
     }
 
     @Override
@@ -253,20 +238,18 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         Log.d(TAG, "deleteMessage: " + adapter.chatDataList.get(mPosition).getMessageID());
         if (adapter.chatDataList.get(mPosition).getSender().equals(user.getUid())) {
             DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
-                    .child("chats")
+                    .child(getResources().getString(R.string.chats))
                     .child(chatID)
-                    .child("messages")
+                    .child(getResources().getString(R.string.messages))
                     .child(adapter.chatDataList.get(mPosition).getMessageID());
 
-            reference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    Toast.makeText(PrivateMessageScreen.this, "Message removed", Toast.LENGTH_SHORT).show();
-                }
-            });
+            reference.removeValue().addOnCompleteListener(task ->
+                    Toast.makeText(PrivateMessageScreen.this, getResources().getString(R.string.message_removed),
+                            Toast.LENGTH_SHORT).show());
 
         }else {
-            Toast.makeText(this, "you cannot delete other peoples messages", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getResources().getString(R.string.you_cannot_delete_other_peoples_messages),
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -284,12 +267,17 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
         Map<String, Object> messageMap = new HashMap<>();
-        messageMap.put("message_content", messageContent.trim());
-        messageMap.put("sender", sender);
-        messageMap.put("receiver", receiver);
-        messageMap.put("date", date);
-        messageMap.put("message_image", messageImage);
-        reference.child("chats").child(chatID).child("messages").push().setValue(messageMap);
+        messageMap.put(getResources().getString(R.string.message_content), messageContent.trim());
+        messageMap.put(getResources().getString(R.string.sender), sender);
+        messageMap.put(getResources().getString(R.string.receiver), receiver);
+        messageMap.put(getResources().getString(R.string.date), date);
+        messageMap.put(getResources().getString(R.string.message_image), messageImage);
+
+        reference.child(getResources().getString(R.string.chats))
+                .child(chatID)
+                .child(getResources().getString(R.string.messages))
+                .push()
+                .setValue(messageMap);
 
         updateLatestMessageAndDate(messageContent, date);
     }
@@ -298,10 +286,13 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
         Map<String, Object> latestMessageAndDateMap = new HashMap<>();
-        latestMessageAndDateMap.put("latest_message", messageContent);
-        latestMessageAndDateMap.put("latest_message_date", date);
+        latestMessageAndDateMap.put(getResources().getString(R.string.latest_message), messageContent);
+        latestMessageAndDateMap.put(getResources().getString(R.string.latest_message_date), date);
 
-        reference.child("chats").child(chatID).child("latest_message_and_date").updateChildren(latestMessageAndDateMap);
+        reference.child(getResources().getString(R.string.chats))
+                .child(chatID)
+                .child(getResources().getString(R.string.latest_message_and_date))
+                .updateChildren(latestMessageAndDateMap);
     }
 
     private void getMessages() {

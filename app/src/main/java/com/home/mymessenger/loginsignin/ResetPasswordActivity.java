@@ -37,25 +37,22 @@ public class ResetPasswordActivity extends AppCompatActivity {
     private void resetPassword() {
         String emailAddress = emailEditText.getText().toString().trim();
         if (emailAddress.isEmpty()) {
-            emailEditText.setError("This field can't be empty");
+            emailEditText.setError(getResources().getString(R.string.fui_required_field));
             emailEditText.requestFocus();
             return;
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
-            emailEditText.setError("Please provide a valid address");
+            emailEditText.setError(getResources().getString(R.string.fui_invalid_email_address));
             emailEditText.requestFocus();
             return;
         }
 
-        firebaseAuth.sendPasswordResetEmail(emailAddress).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Toast.makeText(ResetPasswordActivity.this, "Check your email to reset the password!", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(ResetPasswordActivity.this, "Something went wrong, please try again!", Toast.LENGTH_LONG).show();
-                }
+        firebaseAuth.sendPasswordResetEmail(emailAddress).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(ResetPasswordActivity.this, getResources().getString(R.string.fui_title_confirm_recover_password), Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(ResetPasswordActivity.this, "Something went wrong, please try again!", Toast.LENGTH_LONG).show();
             }
         });
     }
