@@ -24,12 +24,8 @@ public class SplashScreenActivity extends AppCompatActivity {
         EasySplashScreen splashScreen = new EasySplashScreen(SplashScreenActivity.this)
                 .withFullScreen()
                 .withSplashTimeOut(1500)
-                .withHeaderText("header")
-                .withFooterText("footer")
-                .withBeforeLogoText("Before logo")
-                .withAfterLogoText("after logo")
-                .withBackgroundColor(Color.parseColor("#1a1b29"))
-                .withLogo(R.drawable.download);
+                .withBackgroundColor(Color.parseColor("#FFFFFFFF"))
+                .withLogo(R.drawable.message_icon);
 
 
         if (user == null) {

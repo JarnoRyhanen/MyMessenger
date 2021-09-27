@@ -12,12 +12,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.home.mymessenger.R;
 
 public class ResetPasswordActivity extends AppCompatActivity {
 
-    private EditText emailEditText;
+    private TextInputLayout textInputLayout;
 
     private FirebaseAuth firebaseAuth;
 
@@ -26,7 +27,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.reset_password_activity);
 
-        emailEditText = findViewById(R.id.reset_password_edit_text);
+        textInputLayout = findViewById(R.id.text_input_email);
         firebaseAuth = FirebaseAuth.getInstance();
     }
 
@@ -35,16 +36,16 @@ public class ResetPasswordActivity extends AppCompatActivity {
     }
 
     private void resetPassword() {
-        String emailAddress = emailEditText.getText().toString().trim();
+        String emailAddress = textInputLayout.getEditText().getText().toString().trim();
         if (emailAddress.isEmpty()) {
-            emailEditText.setError(getResources().getString(R.string.fui_required_field));
-            emailEditText.requestFocus();
+            textInputLayout.setError(getResources().getString(R.string.fui_required_field));
+            textInputLayout.requestFocus();
             return;
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
-            emailEditText.setError(getResources().getString(R.string.fui_invalid_email_address));
-            emailEditText.requestFocus();
+            textInputLayout.setError(getResources().getString(R.string.fui_error_email_does_not_exist));
+            textInputLayout.requestFocus();
             return;
         }
 

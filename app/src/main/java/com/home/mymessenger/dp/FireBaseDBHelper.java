@@ -152,7 +152,6 @@ public class FireBaseDBHelper {
                     realm.executeTransaction(realm1 -> {
                         UserData data = new UserData();
                         data.setUserID(userID);
-//                        Log.d(TAG, "onDataChange: " +userMap.get(getLocalResources().getString(R.string.user_name)));
                         data.setUserName((String) userMap.get(getLocalResources().getString(R.string.user_name)));
                         data.setUserProfilePicture((String) userMap.get(getLocalResources().getString(R.string.profile_picture)));
                         data.setUserStatus((String) userMap.get(getLocalResources().getString(R.string.current_status)));

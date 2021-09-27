@@ -70,31 +70,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
 
         ChatData data = chatList.get(position);
-        userData = realm.where(UserData.class).equalTo("userID", data.getReceiverID()).findFirst();
 
+        userData = realm.where(UserData.class).equalTo("userID", data.getReceiverID()).findFirst();
         holder.chatID = data.getChatID();
         chatID = holder.chatID;
-        holder.userName.setText(userData.getUserName());
-//        holder.date.setText(data.getLatestActive());
-//        holder.latestMessage.setText(data.getLatestMessage());
-
-        lastMessage(holder.latestMessage, holder.date);
 
         if (userData != null) {
+            holder.userName.setText(userData.getUserName());
             Picasso.get().load(userData.getUserProfilePicture()).into(holder.image);
-
-            if (isActive) {
-                if (userData.getActivityStatus() != null && userData.getActivityStatus().equals("online")) {
-                    holder.online.setVisibility(View.VISIBLE);
-                    holder.offline.setVisibility(View.INVISIBLE);
-                } else {
-                    holder.online.setVisibility(View.INVISIBLE);
-                    holder.offline.setVisibility(View.VISIBLE);
-                }
-            } else {
-                holder.online.setVisibility(View.INVISIBLE);
-                holder.offline.setVisibility(View.INVISIBLE);
-            }
+            lastMessage(holder.latestMessage, holder.date);
         }
     }
 
@@ -133,34 +117,26 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ChatVi
         public TextView userName;
         public TextView latestMessage;
         public ShapeableImageView image;
-        public ShapeableImageView online;
-        public ShapeableImageView offline;
-
 
         public ChatViewHolder(@NonNull View itemView, OnTouchListener listener) {
             super(itemView);
             itemView.setOnClickListener(onRowClick);
             itemView.setOnCreateContextMenuListener(this);
 
-            itemView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (listener != null) {
-                        int position = getBindingAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION) {
-                            listener.onTouch(position);
-                        }
+            itemView.setOnTouchListener((v, event) -> {
+                if (listener != null) {
+                    int position = getBindingAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        listener.onTouch(position);
                     }
-                    return false;
                 }
+                return false;
             });
 
             date = itemView.findViewById(R.id.latest_active_date);
             userName = itemView.findViewById(R.id.user_name);
             latestMessage = itemView.findViewById(R.id.latest_message);
             image = itemView.findViewById(R.id.profile_icon);
-            online = itemView.findViewById(R.id.online_image);
-            offline = itemView.findViewById(R.id.offline_image);
         }
 
         private final View.OnClickListener onRowClick = view -> {

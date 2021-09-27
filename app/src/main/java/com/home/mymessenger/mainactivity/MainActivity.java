@@ -58,8 +58,7 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
 
     private int mPosition;
 
-    //TODO  CONVERT ALL STRINGS TO RESOURCES
-
+//// TODO: 24.9.2021  dark mode and test that all works 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -160,29 +159,6 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
             Intent intent = new Intent(this, SearchForContactsActivity.class);
             startActivity(intent);
         }
-    }
-
-    private void updateUserActivityStatus(String status) {
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-
-        Map<String, Object> activityStatusMap = new HashMap<>();
-        activityStatusMap.put(getResources().getString(R.string.activity_status), status);
-        reference.child(getResources().getString(R.string.user_specific_info))
-                .child(user.getUid())
-                .updateChildren(activityStatusMap);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-//        updateUserActivityStatus("offline");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume: " + isRan);
-//        updateUserActivityStatus("online");
     }
 
     @Override

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
+    android:layout_margin="8dp"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/parentRelative"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#D5FEFF"
     >
 
 
@@ -22,27 +22,6 @@
         app:strokeColor="@color/white"
         />
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/online_image"
-        android:layout_width="10dp"
-        android:layout_height="10dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="50dp"
-        android:visibility="invisible"
-        android:background="#00FF00"
-        app:shapeAppearanceOverlay="@style/roundedImageView"
-        />
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/offline_image"
-        android:layout_width="10dp"
-        android:visibility="invisible"
-        android:layout_height="10dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="50dp"
-        android:background="@color/gray"
-        app:shapeAppearanceOverlay="@style/roundedImageView"
-        />
-
     <TextView
         android:id="@+id/user_name"
         android:layout_width="wrap_content"
@@ -50,7 +29,7 @@
         android:layout_marginStart="20dp"
         android:layout_toEndOf="@id/profile_icon"
         android:fontFamily="sans-serif"
-        android:text="seppo"
+        tools:text="name"
         android:textColor="@color/black"
         android:textSize="24sp"
         />
@@ -61,7 +40,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="8dp"
-        android:text="@string/date"
         android:textSize="16sp"
         tools:text="28.4.2021"
         />
@@ -79,12 +57,12 @@
         android:maxLines="1"
         />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@id/latest_message"
-        android:layout_marginTop="10dp"
-        android:background="@color/gray"
-        />
+<!--    <View-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="1dp"-->
+<!--        android:layout_below="@id/latest_message"-->
+<!--        android:layout_marginTop="10dp"-->
+<!--        android:background="@color/gray"-->
+<!--        />-->
 
 </RelativeLayout>

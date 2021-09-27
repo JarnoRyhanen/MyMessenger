@@ -5,17 +5,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/possible_background"
+    android:background="@color/white"
     android:orientation="vertical"
     tools:context=".loginsignin.SignInActivity"
     >
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="350dp"
         android:cropToPadding="true"
         android:scaleType="fitXY"
-        android:src="@drawable/download"
+        android:src="@drawable/message_icon"
         />
 
     <LinearLayout
@@ -32,7 +32,7 @@
             android:layout_marginTop="16dp"
             app:boxBackgroundColor="@color/fui_transparent"
             app:errorEnabled="true"
-            app:errorTextColor="@color/white"
+            app:errorTextColor="#FF0000"
             app:startIconDrawable="@drawable/ic_baseline_email_24"
             >
 
@@ -44,8 +44,6 @@
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
-        <!--    android:background="@android:color/transparent"-->
-
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/text_input_password_log_in_activity"
@@ -54,7 +52,7 @@
 
             app:boxBackgroundColor="@color/fui_transparent"
             app:errorEnabled="true"
-            app:errorTextColor="@color/white"
+            app:errorTextColor="#FF0000"
             app:passwordToggleEnabled="true"
             app:startIconDrawable="@drawable/ic_baseline_password_24"
             >

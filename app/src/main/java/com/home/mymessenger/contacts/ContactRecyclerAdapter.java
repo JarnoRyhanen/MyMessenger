@@ -13,7 +13,6 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.home.mymessenger.CustomDialog;
 import com.home.mymessenger.R;
 import com.home.mymessenger.data.ContactData;
 
@@ -74,7 +73,7 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<ContactRecycler
             String userName = contactName.getText().toString();
             String phoneNumber = contactPhoneNumber.getText().toString();
 
-            CustomDialog dialog = new CustomDialog();
+            ContactAlertDialog dialog = new ContactAlertDialog();
             dialog.show(fragmentManager, phoneNumber.trim());
         };
     }

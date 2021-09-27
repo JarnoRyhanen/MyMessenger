@@ -1,4 +1,4 @@
-package com.home.mymessenger;
+package com.home.mymessenger.contacts;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +19,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.home.mymessenger.R;
 import com.home.mymessenger.data.ContactData;
 import com.home.mymessenger.data.UserData;
 import com.home.mymessenger.dp.FireBaseDBHelper;
@@ -33,7 +34,7 @@ import java.util.UUID;
 import io.realm.Realm;
 
 
-public class CustomDialog extends AppCompatDialogFragment {
+public class ContactAlertDialog extends AppCompatDialogFragment {
     private static final String TAG = "CustomDialog";
     private TextView textView;
 
