@@ -210,7 +210,7 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
 
     private void createRecyclerView() {
         privateMessageRecycler = findViewById(R.id.private_message_screen_recycler_view);
-        privateMessageRecycler.setHasFixedSize(true);
+        privateMessageRecycler.setHasFixedSize(false);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         linearLayoutManager.setStackFromEnd(true);
         privateMessageRecycler.setLayoutManager(linearLayoutManager);
@@ -340,7 +340,7 @@ public class PrivateMessageScreen extends AppCompatActivity implements FireBaseD
         if (id == R.id.action_settings) {
             return true;
         } else if (id == R.id.action_phone_call) {
-//            callPhone();
+            callPhone();
             return true;
         }
 

@@ -94,7 +94,7 @@ public class UserProfileFragment extends Fragment {
         floatingActionButton = view.findViewById(R.id.user_profile_activity_fab);
 
         inboxRecycler = view.findViewById(R.id.user_profile_inbox_recycler);
-        inboxRecycler.setHasFixedSize(true);
+        inboxRecycler.setHasFixedSize(false);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         linearLayoutManager.setStackFromEnd(true);
         inboxRecycler.setLayoutManager(linearLayoutManager);

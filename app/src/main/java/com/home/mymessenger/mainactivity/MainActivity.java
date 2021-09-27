@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements FireBaseDBHelper.
 
     private int mPosition;
 
-//// TODO: 24.9.2021  dark mode and test that all works 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
